@@ -373,8 +373,8 @@
       </div>
 
       <div class="wallets-h">
-        <span>Конкуренты — нажми, чтобы увидеть связи</span>
-        <button id="radarEditToggle" type="button">✎ списки</button>
+        <span>Списки</span>
+        <button id="radarEditToggle" type="button">✎ изменить</button>
       </div>
       <div class="wallet-edit" id="radarEdit">
         <div class="field">
@@ -389,12 +389,17 @@
         </div>
       </div>
 
-      <div id="compList"></div>
+      <input id="radarFilter" placeholder="Поиск по имени или адресу" autocapitalize="off"
+             autocorrect="off" spellcheck="false" style="margin-top:4px">
 
-      <button class="go" id="goRadar" style="margin-top:14px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)">Проверить всех конкурентов сразу</button>
-      <p class="hint">Нажми на конкурента — покажу его связи с твоими клиентами и другими
-        конкурентами. Кнопка выше проверяет всех сразу. Только переводы настоящего USDT,
-        в отчёте вместо адресов — имена из базы.</p>
+      <div class="more-h" style="margin:16px 4px 8px">Конкуренты</div>
+      <div id="compList"></div>
+      <div class="more-h" style="margin:18px 4px 8px">Клиенты</div>
+      <div id="clientList"></div>
+
+      <button class="go" id="goRadar" style="margin-top:16px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)">Проверить всех конкурентов сразу</button>
+      <p class="hint">Нажми на любое имя — покажу его связи: клиента проверю на работу с
+        конкурентами, конкурента — на связи с твоими клиентами. Только USDT, имена из базы.</p>
     </div>
     <div id="outRadar"></div>
   </section>
@@ -1035,29 +1040,36 @@ function renderRadarEditors(){
   $("clientCount").textContent = loadListLS(CLIENT_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
 }
 
-/* кликабельный список конкурентов: тап → отчёт по одному */
-function renderCompList(){
-  const box=$("compList");
-  const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
+/* кликабельные имена: один список (конкуренты/клиенты) с фильтром; тап → отчёт */
+function renderEntityList(boxId, key, selfGroup, filter){
+  const box=$(boxId);
+  let items=loadListLS(key).filter(w=>ADDR_RE.test((w.addr||"").trim()))
     .map(w=>({name:w.name,addr:w.addr.trim()}));
-  if(!comps.length){
-    box.innerHTML=`<p class="hint" style="margin:6px 2px">Список конкурентов пуст — нажми «✎ списки» и добавь.</p>`;
+  const f=(filter||"").trim().toLowerCase();
+  if(f) items=items.filter(w=>((w.name||"")+" "+w.addr).toLowerCase().includes(f));
+  if(!items.length){
+    box.innerHTML=`<p class="hint" style="margin:4px 2px">${f?"Ничего не найдено.":"Пусто — нажми «✎ изменить» и добавь."}</p>`;
     return;
   }
-  box.innerHTML=comps.map((w,i)=>`<button class="comp-row" data-i="${i}">
+  box.innerHTML=items.map((w,i)=>`<button class="comp-row" data-i="${i}">
       <span class="nm">${esc(w.name||short(w.addr,6,5))}</span>
       <span class="ad">${esc(short(w.addr,6,5))}</span>
       <span class="go">связи ›</span>
     </button>`).join("");
   box.querySelectorAll(".comp-row").forEach(b=>b.addEventListener("click",()=>{
-    const w=comps[+b.dataset.i]; scanOneCompetitor(w.name, w.addr);
+    const w=items[+b.dataset.i]; scanOneAddress(w.name, w.addr, selfGroup);
   }));
 }
+function renderRadarLists(){
+  const f=$("radarFilter") ? $("radarFilter").value : "";
+  renderEntityList("compList",   COMP_KEY,   "comp",   f);
+  renderEntityList("clientList", CLIENT_KEY, "client", f);
+}
 
-/* отчёт по одному конкуренту: его связи с клиентами и другими конкурентами */
-async function scanOneCompetitor(name, addr){
+/* отчёт по одному адресу: его связи с твоей базой (selfGroup: 'comp' | 'client') */
+async function scanOneAddress(name, addr, selfGroup){
   const out=$("outRadar");
-  if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">Адрес конкурента неверный.</p>`; return; }
+  if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">Адрес неверный.</p>`; return; }
   const idx=buildNameIndex();
   let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
   const since=Date.now()-days*86400000;
@@ -1084,7 +1096,7 @@ async function scanOneCompetitor(name, addr){
       e.total+=amt; if(ts>e.last) e.last=ts;
       if(from===addr) e.out++; else e.inn++;            // out: он → контрагент; inn: контрагент → он
     });
-    renderOne(out, title, Array.from(map.values()), days, truncated);
+    renderOne(out, title, Array.from(map.values()), days, truncated, selfGroup);
   }catch(e){
     out.innerHTML=`<p class="note err">${netMsg(e)}</p>`;
   }
@@ -1101,22 +1113,30 @@ function oneCard(e, compName, cls){
   </div>`;
 }
 
-function renderOne(out, compName, list, days, truncated){
-  const clients=list.filter(e=>e.group==="client").sort((a,b)=>b.last-a.last);
-  const comps  =list.filter(e=>e.group==="comp").sort((a,b)=>b.last-a.last);
-  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(compName)} · за ${days} дн.</div>`;
+function renderOne(out, selfName, list, days, truncated, selfGroup){
+  // тревожная группа (красным) — «противоположная» сторона
+  const alarmGroup = selfGroup==="comp" ? "client" : "comp";
+  const otherGroup = selfGroup==="comp" ? "comp"   : "client";
+  const alarm=list.filter(e=>e.group===alarmGroup).sort((a,b)=>b.last-a.last);
+  const other=list.filter(e=>e.group===otherGroup).sort((a,b)=>b.last-a.last);
+  const alarmTitle = selfGroup==="comp"
+    ? "⚠️ Связи с твоими клиентами: "+alarm.length
+    : "⚠️ Работает с конкурентами: "+alarm.length;
+  const otherTitle = selfGroup==="comp" ? "С другими конкурентами" : "С другими клиентами";
+
+  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(selfName)} · за ${days} дн.</div>`;
   if(truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
-  if(!clients.length && !comps.length){
+  if(!alarm.length && !other.length){
     html+=`<p class="note">За ${days} дн. связей с твоей базой нет.</p>`;
     out.innerHTML=html; return;
   }
-  if(clients.length){
-    html+=`<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">⚠️ Связи с твоими клиентами: ${clients.length}</div>`;
-    clients.forEach(e=>html+=oneCard(e, compName, "bad"));
+  if(alarm.length){
+    html+=`<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${alarmTitle}</div>`;
+    alarm.forEach(e=>html+=oneCard(e, selfName, "bad"));
   }
-  if(comps.length){
-    html+=`<div class="more-h">С другими конкурентами</div>`;
-    comps.forEach(e=>html+=oneCard(e, compName, ""));
+  if(other.length){
+    html+=`<div class="more-h">${otherTitle}</div>`;
+    other.forEach(e=>html+=oneCard(e, selfName, ""));
   }
   out.innerHTML=html;
   wireCopy(out);
@@ -1278,17 +1298,16 @@ function switchTab(name){
 
   // радар: списки конкурентов/клиентов и сканирование
   renderRadarEditors();
-  renderCompList();
-  if(!loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length)
-    $("radarEdit").classList.add("open");           // первый запуск — сразу открыть ввод
+  renderRadarLists();                                // редактор по умолчанию свёрнут
   $("radarEditToggle").addEventListener("click",()=>$("radarEdit").classList.toggle("open"));
+  $("radarFilter").addEventListener("input", renderRadarLists);
   $("compSave").addEventListener("click",()=>{
     const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
-    renderRadarEditors(); renderCompList(); flashToast("Конкуренты сохранены: "+arr.length);
+    renderRadarEditors(); renderRadarLists(); flashToast("Конкуренты сохранены: "+arr.length);
   });
   $("clientSave").addEventListener("click",()=>{
     const arr=parseListText($("clientText").value); saveListLS(CLIENT_KEY,arr);
-    renderRadarEditors(); flashToast("Клиенты сохранены: "+arr.length);
+    renderRadarEditors(); renderRadarLists(); flashToast("Клиенты сохранены: "+arr.length);
   });
   $("goRadar").addEventListener("click", scanRadar);
   document.querySelectorAll("#radarPresets button").forEach(b=>
