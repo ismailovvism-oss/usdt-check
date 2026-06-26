@@ -190,6 +190,13 @@
   .edge{background:var(--card);border:1px solid var(--line);border-radius:13px;
     padding:13px 14px;margin-bottom:9px}
   .edge.bad{background:var(--red-soft);border-color:#F1C7C0}
+  .comp-row{display:flex;align-items:center;gap:10px;width:100%;text-align:left;
+    background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:14px;margin-bottom:9px;cursor:pointer;font-family:var(--ui);transition:.1s}
+  .comp-row:active{transform:scale(.99)}
+  .comp-row .nm{font-weight:600;font-size:14.5px;flex:1;color:var(--ink)}
+  .comp-row .ad{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .comp-row .go{font-size:13px;font-weight:600;color:var(--green);flex:none}
   .edge-h{font-size:14px;margin-bottom:5px;line-height:1.35}
   .edge-s{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600}
   .edge-d{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
@@ -353,34 +360,41 @@
   <!-- ── Радар (связи конкурентов и клиентов) ───────────── -->
   <section class="pane" id="pane-radar">
     <div class="panel">
-      <div class="field">
-        <label>Конкуренты — по одному в строке: «Имя, Tадрес»</label>
-        <textarea id="compText" placeholder="Обменник №1, T...
-T..."></textarea>
-        <button class="go" id="compSave" style="margin-top:8px">Сохранить конкурентов (<b id="compCount">0</b>)</button>
-      </div>
-      <div class="field" style="margin-top:14px">
-        <label>Клиенты — «Имя, Tадрес» (можно вставлять списком)</label>
-        <textarea id="clientText" placeholder="Иван, T...
-Пётр, T..."></textarea>
-        <button class="go" id="clientSave" style="margin-top:8px">Сохранить клиентов (<b id="clientCount">0</b>)</button>
-      </div>
-      <div class="field" style="margin-top:14px">
-        <label for="radarDays">За какой период смотреть</label>
+      <div class="field" style="margin-bottom:10px">
+        <label for="radarDays">За какой период</label>
         <div class="seg" id="radarPresets" style="max-width:320px">
           <button type="button" data-d="1" aria-pressed="false">Сутки</button>
           <button type="button" data-d="7" aria-pressed="true">7 дней</button>
           <button type="button" data-d="30" aria-pressed="false">30 дней</button>
         </div>
-        <input id="radarDays" inputmode="numeric" value="7" style="max-width:160px"
+        <input id="radarDays" inputmode="numeric" value="7" style="max-width:140px"
                aria-label="Период в днях">
         <span class="hint" style="display:inline">дней</span>
       </div>
-      <button class="go" id="goRadar">Проверить связи</button>
-      <p class="hint">Сканирую только кошельки конкурентов (их мало) и ищу среди их
-        контрагентов твоих клиентов и других конкурентов — база клиентов может расти
-        сколько угодно. Только переводы настоящего USDT. В отчёте вместо адресов —
-        имена из твоей базы.</p>
+
+      <div class="wallets-h">
+        <span>Конкуренты — нажми, чтобы увидеть связи</span>
+        <button id="radarEditToggle" type="button">✎ списки</button>
+      </div>
+      <div class="wallet-edit" id="radarEdit">
+        <div class="field">
+          <label>Конкуренты — «Имя, Tадрес» по строке</label>
+          <textarea id="compText" placeholder="Обменник №1, T...&#10;T..."></textarea>
+          <button class="go" id="compSave" style="margin-top:8px">Сохранить конкурентов (<b id="compCount">0</b>)</button>
+        </div>
+        <div class="field" style="margin-top:14px">
+          <label>Клиенты — «Имя, Tадрес» (можно списком)</label>
+          <textarea id="clientText" placeholder="Иван, T...&#10;Пётр, T..."></textarea>
+          <button class="go" id="clientSave" style="margin-top:8px">Сохранить клиентов (<b id="clientCount">0</b>)</button>
+        </div>
+      </div>
+
+      <div id="compList"></div>
+
+      <button class="go" id="goRadar" style="margin-top:14px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)">Проверить всех конкурентов сразу</button>
+      <p class="hint">Нажми на конкурента — покажу его связи с твоими клиентами и другими
+        конкурентами. Кнопка выше проверяет всех сразу. Только переводы настоящего USDT,
+        в отчёте вместо адресов — имена из базы.</p>
     </div>
     <div id="outRadar"></div>
   </section>
@@ -1021,6 +1035,93 @@ function renderRadarEditors(){
   $("clientCount").textContent = loadListLS(CLIENT_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
 }
 
+/* кликабельный список конкурентов: тап → отчёт по одному */
+function renderCompList(){
+  const box=$("compList");
+  const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
+    .map(w=>({name:w.name,addr:w.addr.trim()}));
+  if(!comps.length){
+    box.innerHTML=`<p class="hint" style="margin:6px 2px">Список конкурентов пуст — нажми «✎ списки» и добавь.</p>`;
+    return;
+  }
+  box.innerHTML=comps.map((w,i)=>`<button class="comp-row" data-i="${i}">
+      <span class="nm">${esc(w.name||short(w.addr,6,5))}</span>
+      <span class="ad">${esc(short(w.addr,6,5))}</span>
+      <span class="go">связи ›</span>
+    </button>`).join("");
+  box.querySelectorAll(".comp-row").forEach(b=>b.addEventListener("click",()=>{
+    const w=comps[+b.dataset.i]; scanOneCompetitor(w.name, w.addr);
+  }));
+}
+
+/* отчёт по одному конкуренту: его связи с клиентами и другими конкурентами */
+async function scanOneCompetitor(name, addr){
+  const out=$("outRadar");
+  if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">Адрес конкурента неверный.</p>`; return; }
+  const idx=buildNameIndex();
+  let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
+  const since=Date.now()-days*86400000;
+  const title=name||short(addr,6,5);
+  out.innerHTML=`<p class="note">Смотрю связи: ${esc(title)} за ${days} дн…</p>`;
+  out.scrollIntoView({behavior:"smooth",block:"start"});
+  try{
+    const {transfers, truncated}=await fetchTransfersSince(addr, since);
+    const map=new Map();
+    transfers.forEach(t=>{
+      const info=t.token_info||{};
+      if(info.address!==REAL_USDT) return;             // только настоящий USDT
+      const from=t.from||"", to=t.to||"";
+      const cp=(from===addr)?to:from;
+      if(!cp || cp===addr) return;
+      const m=idx.get(cp); if(!m || m.group==="me") return;  // контрагент должен быть в базе
+      const amt=toAmount(t.value,info.decimals)||0;
+      const ts=Number(t.block_timestamp)||0;
+      const txid=t.transaction_id||"";
+      let e=map.get(cp);
+      if(!e){ e={cp, name:m.name, group:m.group, txids:new Set(), total:0, last:0, out:0, inn:0}; map.set(cp,e); }
+      if(txid && e.txids.has(txid)) return;
+      if(txid) e.txids.add(txid);
+      e.total+=amt; if(ts>e.last) e.last=ts;
+      if(from===addr) e.out++; else e.inn++;            // out: он → контрагент; inn: контрагент → он
+    });
+    renderOne(out, title, Array.from(map.values()), days, truncated);
+  }catch(e){
+    out.innerHTML=`<p class="note err">${netMsg(e)}</p>`;
+  }
+}
+
+function oneCard(e, compName, cls){
+  const cnt=e.out+e.inn, total=nf.format(e.total);
+  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
+  return `<div class="edge ${cls}">
+    <div class="edge-h">${grpTag(e.group)} <b>${esc(e.name)}</b></div>
+    <div class="edge-s">${cnt} переводов · ${total} USDT · последний ${esc(last)}</div>
+    <div class="edge-d">${esc(compName)} → ${esc(e.name)}: ${e.out} &nbsp;·&nbsp; ${esc(e.name)} → ${esc(compName)}: ${e.inn}</div>
+    <div class="edge-a"><span>${esc(short(e.cp,8,6))}</span><button class="copy" data-c="${esc(e.cp)}">копир.</button></div>
+  </div>`;
+}
+
+function renderOne(out, compName, list, days, truncated){
+  const clients=list.filter(e=>e.group==="client").sort((a,b)=>b.last-a.last);
+  const comps  =list.filter(e=>e.group==="comp").sort((a,b)=>b.last-a.last);
+  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(compName)} · за ${days} дн.</div>`;
+  if(truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
+  if(!clients.length && !comps.length){
+    html+=`<p class="note">За ${days} дн. связей с твоей базой нет.</p>`;
+    out.innerHTML=html; return;
+  }
+  if(clients.length){
+    html+=`<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">⚠️ Связи с твоими клиентами: ${clients.length}</div>`;
+    clients.forEach(e=>html+=oneCard(e, compName, "bad"));
+  }
+  if(comps.length){
+    html+=`<div class="more-h">С другими конкурентами</div>`;
+    comps.forEach(e=>html+=oneCard(e, compName, ""));
+  }
+  out.innerHTML=html;
+  wireCopy(out);
+}
+
 const RADAR_MAX_PAGES = 12;   // потолок страниц на адрес (12×200 = до 2400 переводов)
 
 /* подгружаем переводы адреса начиная с момента sinceMs, листая страницы по fingerprint */
@@ -1177,9 +1278,13 @@ function switchTab(name){
 
   // радар: списки конкурентов/клиентов и сканирование
   renderRadarEditors();
+  renderCompList();
+  if(!loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length)
+    $("radarEdit").classList.add("open");           // первый запуск — сразу открыть ввод
+  $("radarEditToggle").addEventListener("click",()=>$("radarEdit").classList.toggle("open"));
   $("compSave").addEventListener("click",()=>{
     const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
-    renderRadarEditors(); flashToast("Конкуренты сохранены: "+arr.length);
+    renderRadarEditors(); renderCompList(); flashToast("Конкуренты сохранены: "+arr.length);
   });
   $("clientSave").addEventListener("click",()=>{
     const arr=parseListText($("clientText").value); saveListLS(CLIENT_KEY,arr);
