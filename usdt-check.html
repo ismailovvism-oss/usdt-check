@@ -365,9 +365,16 @@ T..."></textarea>
 Пётр, T..."></textarea>
         <button class="go" id="clientSave" style="margin-top:8px">Сохранить клиентов (<b id="clientCount">0</b>)</button>
       </div>
-      <div class="field" style="margin-top:14px;max-width:230px">
-        <label for="radarLimit">Сколько переводов смотреть у каждого конкурента</label>
-        <input id="radarLimit" inputmode="numeric" value="100">
+      <div class="field" style="margin-top:14px">
+        <label for="radarDays">За какой период смотреть</label>
+        <div class="seg" id="radarPresets" style="max-width:320px">
+          <button type="button" data-d="1" aria-pressed="false">Сутки</button>
+          <button type="button" data-d="7" aria-pressed="true">7 дней</button>
+          <button type="button" data-d="30" aria-pressed="false">30 дней</button>
+        </div>
+        <input id="radarDays" inputmode="numeric" value="7" style="max-width:160px"
+               aria-label="Период в днях">
+        <span class="hint" style="display:inline">дней</span>
       </div>
       <button class="go" id="goRadar">Проверить связи</button>
       <p class="hint">Сканирую только кошельки конкурентов (их мало) и ищу среди их
@@ -1014,6 +1021,28 @@ function renderRadarEditors(){
   $("clientCount").textContent = loadListLS(CLIENT_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
 }
 
+const RADAR_MAX_PAGES = 12;   // потолок страниц на адрес (12×200 = до 2400 переводов)
+
+/* подгружаем переводы адреса начиная с момента sinceMs, листая страницы по fingerprint */
+async function fetchTransfersSince(addr, sinceMs){
+  let all=[], fp=null, pages=0;
+  while(pages<RADAR_MAX_PAGES){
+    let url=`https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20`
+      +`?limit=200&min_timestamp=${sinceMs}&order_by=block_timestamp,desc`;
+    if(fp) url+=`&fingerprint=${encodeURIComponent(fp)}`;
+    const res=await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data=await res.json();
+    const arr=data.data||[];
+    all.push(...arr);
+    pages++;
+    fp=data.meta && data.meta.fingerprint;
+    if(!fp || !arr.length) return {transfers:all, truncated:false};
+    await sleep(160);
+  }
+  return {transfers:all, truncated:true};                 // история глубже окна — показана не вся
+}
+
 async function scanRadar(){
   const out=$("outRadar");
   const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
@@ -1022,19 +1051,18 @@ async function scanRadar(){
     out.innerHTML=`<p class="note err">Добавь хотя бы одного конкурента и сохрани список.</p>`; return;
   }
   const idx=buildNameIndex();
-  let limit=parseInt($("radarLimit").value,10); if(!(limit>0)) limit=100; if(limit>200) limit=200;
+  let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
+  const since=Date.now()-days*86400000;
 
   setBusy("goRadar","Сканирую…",true);
-  const edges=new Map(); let errors=0;
+  const edges=new Map(); let errors=0, truncatedAny=false;
   for(let i=0;i<comps.length;i++){
     const comp=comps[i];
-    out.innerHTML=`<p class="note">Сканирую конкурентов: ${i+1} / ${comps.length}…</p>`;
+    out.innerHTML=`<p class="note">Сканирую конкурентов: ${i+1} / ${comps.length} (за ${days} дн.)…</p>`;
     try{
-      const url=`https://api.trongrid.io/v1/accounts/${comp.addr}/transactions/trc20?limit=${limit}`;
-      const res=await fetch(url,{headers:tgHeaders()});
-      if(!res.ok) throw new Error("HTTP "+res.status);
-      const data=await res.json();
-      (data.data||[]).forEach(t=>{
+      const {transfers, truncated}=await fetchTransfersSince(comp.addr, since);
+      if(truncated) truncatedAny=true;
+      transfers.forEach(t=>{
         const info=t.token_info||{};
         if(info.address!==REAL_USDT) return;            // только настоящий USDT
         const from=t.from||"", to=t.to||"";
@@ -1062,7 +1090,7 @@ async function scanRadar(){
     }catch(err){ errors++; }
     if(i<comps.length-1) await sleep(160);               // бережём лимит TronGrid
   }
-  renderRadar(out, Array.from(edges.values()), idx, comps.length, errors);
+  renderRadar(out, Array.from(edges.values()), idx, comps.length, errors, days, truncatedAny);
   setBusy("goRadar","Проверить связи",false);
 }
 
@@ -1083,13 +1111,15 @@ function edgeHTML(e, idx){
   </div>`;
 }
 
-function renderRadar(out, edges, idx, nComp, errors){
+function renderRadar(out, edges, idx, nComp, errors, days, truncatedAny){
   const kc=edges.filter(e=>e.type==="kc").sort((x,y)=>y.last-x.last);
   const cc=edges.filter(e=>e.type==="cc").sort((x,y)=>y.last-x.last);
   let html = kc.length
     ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">⚠️ Связей «клиент ↔ конкурент»: ${kc.length}. Похоже, кто-то работает в обход.</div>`
     : `<div class="banner demo">Связей «клиент ↔ конкурент» не найдено.</div>`;
-  html += `<p class="hint">Просканировано конкурентов: ${nComp}. ${errors?("Не удалось опросить: "+errors+" (возможно, лимит TronGrid — впиши бесплатный ключ или повтори позже)."):""}</p>`;
+  html += `<p class="hint">Просканировано конкурентов: ${nComp} за ${days} дн. `
+    + `${truncatedAny?"У части адресов переводов больше, чем влезло в окно — показана не вся история (уменьши период или впиши TRONGRID_KEY). ":""}`
+    + `${errors?("Не удалось опросить: "+errors+" (возможно, лимит TronGrid — впиши бесплатный ключ или повтори позже)."):""}</p>`;
   if(kc.length){ html+=`<div class="more-h">Клиент ушёл к конкуренту</div>`; kc.forEach(e=>html+=edgeHTML(e,idx)); }
   if(cc.length){ html+=`<div class="more-h">Конкуренты между собой</div>`; cc.forEach(e=>html+=edgeHTML(e,idx)); }
   if(!kc.length && !cc.length){
@@ -1156,6 +1186,15 @@ function switchTab(name){
     renderRadarEditors(); flashToast("Клиенты сохранены: "+arr.length);
   });
   $("goRadar").addEventListener("click", scanRadar);
+  document.querySelectorAll("#radarPresets button").forEach(b=>
+    b.addEventListener("click",()=>{
+      $("radarDays").value=b.dataset.d;
+      document.querySelectorAll("#radarPresets button").forEach(x=>
+        x.setAttribute("aria-pressed", String(x===b)));
+    }));
+  $("radarDays").addEventListener("input",()=>
+    document.querySelectorAll("#radarPresets button").forEach(x=>
+      x.setAttribute("aria-pressed", String(x.dataset.d===$("radarDays").value))));
 
   // Enter в полях
   ["addr","expect","limit"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkArrival();}));
