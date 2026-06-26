@@ -378,6 +378,11 @@
       </div>
       <div class="wallet-edit" id="radarEdit">
         <div class="field">
+          <label>Мои кошельки — «Имя, Tадрес» (общие с вкладкой «Приход»)</label>
+          <textarea id="myText" placeholder="Касса, T...&#10;Резерв, T..."></textarea>
+          <button class="go" id="mySave" style="margin-top:8px">Сохранить мои кошельки (<b id="myCount">0</b>)</button>
+        </div>
+        <div class="field" style="margin-top:14px">
           <label>Конкуренты — «Имя, Tадрес» по строке</label>
           <textarea id="compText" placeholder="Обменник №1, T...&#10;T..."></textarea>
           <button class="go" id="compSave" style="margin-top:8px">Сохранить конкурентов (<b id="compCount">0</b>)</button>
@@ -392,7 +397,9 @@
       <input id="radarFilter" placeholder="Поиск по имени или адресу" autocapitalize="off"
              autocorrect="off" spellcheck="false" style="margin-top:4px">
 
-      <div class="more-h" style="margin:16px 4px 8px">Конкуренты</div>
+      <div class="more-h" style="margin:16px 4px 8px">Мои кошельки</div>
+      <div id="myList"></div>
+      <div class="more-h" style="margin:18px 4px 8px">Конкуренты</div>
       <div id="compList"></div>
       <div class="more-h" style="margin:18px 4px 8px">Клиенты</div>
       <div id="clientList"></div>
@@ -1023,7 +1030,7 @@ function buildNameIndex(){
     if(ADDR_RE.test(a)) idx.set(a,{name:w.name||short(a,6,5),group:"comp"}); });
   loadListLS(CLIENT_KEY).forEach(w=>{ const a=(w.addr||"").trim();
     if(ADDR_RE.test(a) && !idx.has(a)) idx.set(a,{name:w.name||short(a,6,5),group:"client"}); });
-  loadWallets().forEach(w=>{ const a=(w.addr||"").trim();
+  loadListLS(WALLET_KEY).forEach(w=>{ const a=(w.addr||"").trim();
     if(ADDR_RE.test(a) && !idx.has(a)) idx.set(a,{name:w.name||short(a,6,5),group:"me"}); });
   return idx;
 }
@@ -1034,10 +1041,13 @@ function grpTag(g){
 }
 
 function renderRadarEditors(){
+  $("myText").value     = listToText(loadListLS(WALLET_KEY));
   $("compText").value   = listToText(loadListLS(COMP_KEY));
   $("clientText").value = listToText(loadListLS(CLIENT_KEY));
-  $("compCount").textContent   = loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
-  $("clientCount").textContent = loadListLS(CLIENT_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
+  const cnt=key=>loadListLS(key).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
+  $("myCount").textContent     = cnt(WALLET_KEY);
+  $("compCount").textContent   = cnt(COMP_KEY);
+  $("clientCount").textContent = cnt(CLIENT_KEY);
 }
 
 /* кликабельные имена: один список (конкуренты/клиенты) с фильтром; тап → отчёт */
@@ -1062,14 +1072,30 @@ function renderEntityList(boxId, key, selfGroup, filter){
 }
 function renderRadarLists(){
   const f=$("radarFilter") ? $("radarFilter").value : "";
+  renderEntityList("myList",     WALLET_KEY, "me",     f);
   renderEntityList("compList",   COMP_KEY,   "comp",   f);
   renderEntityList("clientList", CLIENT_KEY, "client", f);
 }
 
-/* отчёт по одному адресу: его связи с твоей базой (selfGroup: 'comp' | 'client') */
-async function scanOneAddress(name, addr, selfGroup){
+/* самый свежий TRC20-перевод адреса (мс); 0 — переводов нет вовсе, null — ошибка */
+async function lastActivityMs(addr){
+  try{
+    const url=`https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=1&order_by=block_timestamp,desc`;
+    const res=await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) return null;
+    const d=await res.json();
+    const t=(d.data||[])[0];
+    return t ? (Number(t.block_timestamp)||0) : 0;
+  }catch(e){ return null; }
+}
+
+/* отчёт по одному адресу: его связи с твоей базой (selfGroup: 'me' | 'comp' | 'client') */
+const DEAD_DAYS = 7;            // нет операций столько дней → подозрение на мёртвый кошелёк
+let radarLastScan=null;
+async function scanOneAddress(name, addr, selfGroup, force){
   const out=$("outRadar");
   if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">Адрес неверный.</p>`; return; }
+  radarLastScan={name,addr,selfGroup};
   const idx=buildNameIndex();
   let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
   const since=Date.now()-days*86400000;
@@ -1077,7 +1103,7 @@ async function scanOneAddress(name, addr, selfGroup){
   out.innerHTML=`<p class="note">Смотрю связи: ${esc(title)} за ${days} дн…</p>`;
   out.scrollIntoView({behavior:"smooth",block:"start"});
   try{
-    const {transfers, truncated}=await fetchTransfersSince(addr, since);
+    const {transfers, truncated, at, cached}=await getTransfers(addr, since, !!force);
     const map=new Map();
     transfers.forEach(t=>{
       const info=t.token_info||{};
@@ -1085,7 +1111,7 @@ async function scanOneAddress(name, addr, selfGroup){
       const from=t.from||"", to=t.to||"";
       const cp=(from===addr)?to:from;
       if(!cp || cp===addr) return;
-      const m=idx.get(cp); if(!m || m.group==="me") return;  // контрагент должен быть в базе
+      const m=idx.get(cp); if(!m) return;               // контрагент должен быть в базе (мои/конкуренты/клиенты)
       const amt=toAmount(t.value,info.decimals)||0;
       const ts=Number(t.block_timestamp)||0;
       const txid=t.transaction_id||"";
@@ -1096,7 +1122,13 @@ async function scanOneAddress(name, addr, selfGroup){
       e.total+=amt; if(ts>e.last) e.last=ts;
       if(from===addr) e.out++; else e.inn++;            // out: он → контрагент; inn: контрагент → он
     });
-    renderOne(out, title, Array.from(map.values()), days, truncated, selfGroup);
+    // проверка активности: самый свежий перевод в окне, иначе отдельный запрос
+    let lastAct;
+    if(transfers.length){ let nw=0; transfers.forEach(t=>{const ts=Number(t.block_timestamp)||0; if(ts>nw) nw=ts;}); lastAct=nw; }
+    else { lastAct = await lastActivityMs(addr); }       // 0 — нет вовсе, null — ошибка
+    const inactiveDays = lastAct==null ? null : (lastAct===0 ? Infinity : (Date.now()-lastAct)/86400000);
+
+    renderOne(out, title, Array.from(map.values()), days, truncated, selfGroup, {at, cached, inactiveDays});
   }catch(e){
     out.innerHTML=`<p class="note err">${netMsg(e)}</p>`;
   }
@@ -1113,33 +1145,50 @@ function oneCard(e, compName, cls){
   </div>`;
 }
 
-function renderOne(out, selfName, list, days, truncated, selfGroup){
-  // тревожная группа (красным) — «противоположная» сторона
-  const alarmGroup = selfGroup==="comp" ? "client" : "comp";
-  const otherGroup = selfGroup==="comp" ? "comp"   : "client";
-  const alarm=list.filter(e=>e.group===alarmGroup).sort((a,b)=>b.last-a.last);
-  const other=list.filter(e=>e.group===otherGroup).sort((a,b)=>b.last-a.last);
-  const alarmTitle = selfGroup==="comp"
-    ? "⚠️ Связи с твоими клиентами: "+alarm.length
-    : "⚠️ Работает с конкурентами: "+alarm.length;
-  const otherTitle = selfGroup==="comp" ? "С другими конкурентами" : "С другими клиентами";
+function renderOne(out, selfName, list, days, truncated, selfGroup, meta){
+  const byGroup=g=>list.filter(e=>e.group===g).sort((a,b)=>b.last-a.last);
+  // какие секции и в каком порядке показывать в зависимости от роли «себя»
+  const CFG = {
+    comp:   [{g:"client", t:"⚠️ Связи с твоими клиентами", red:true},
+             {g:"comp",   t:"С другими конкурентами"},
+             {g:"me",     t:"С твоими кошельками"}],
+    client: [{g:"comp",   t:"⚠️ Работает с конкурентами",  red:true},
+             {g:"client", t:"С другими клиентами"},
+             {g:"me",     t:"С твоими кошельками"}],
+    me:     [{g:"client", t:"Твои клиенты"},
+             {g:"comp",   t:"⚠️ Замечен с конкурентами",   red:true},
+             {g:"me",     t:"Между твоими кошельками"}],
+  };
+  const cfg = CFG[selfGroup] || CFG.comp;
 
   let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(selfName)} · за ${days} дн.</div>`;
+  if(meta && meta.at){
+    const clock=new Date(meta.at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    html+=`<p class="hint" style="margin:0 2px 8px">${meta.cached?"Из кеша · ":""}данные на ${clock} · <button class="prefill" id="radarRefresh" style="margin:0">↻ обновить</button></p>`;
+  }
   if(truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
-  if(!alarm.length && !other.length){
-    html+=`<p class="note">За ${days} дн. связей с твоей базой нет.</p>`;
-    out.innerHTML=html; return;
+  if(meta && meta.inactiveDays!=null && meta.inactiveDays>=DEAD_DAYS){
+    const txt = isFinite(meta.inactiveDays)
+      ? `💤 Кошелёк неактивен ${Math.floor(meta.inactiveDays)} дн. — возможно, мёртвый. Стоит удалить из базы.`
+      : `💤 У кошелька нет ни одной USDT-операции — возможно, мёртвый. Стоит удалить из базы.`;
+    html+=`<div class="banner" style="background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)">${txt}</div>`;
   }
-  if(alarm.length){
-    html+=`<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${alarmTitle}</div>`;
-    alarm.forEach(e=>html+=oneCard(e, selfName, "bad"));
-  }
-  if(other.length){
-    html+=`<div class="more-h">${otherTitle}</div>`;
-    other.forEach(e=>html+=oneCard(e, selfName, ""));
-  }
+
+  let any=false;
+  cfg.forEach(s=>{
+    const arr=byGroup(s.g); if(!arr.length) return; any=true;
+    html += s.red
+      ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${s.t}: ${arr.length}</div>`
+      : `<div class="more-h">${s.t}</div>`;
+    arr.forEach(e=>html+=oneCard(e, selfName, s.red?"bad":""));
+  });
+  if(!any) html+=`<p class="note">За ${days} дн. связей с твоей базой нет.</p>`;
+
   out.innerHTML=html;
   wireCopy(out);
+  const rb=$("radarRefresh");
+  if(rb && radarLastScan) rb.addEventListener("click",()=>
+    scanOneAddress(radarLastScan.name, radarLastScan.addr, radarLastScan.selfGroup, true));
 }
 
 const RADAR_MAX_PAGES = 12;   // потолок страниц на адрес (12×200 = до 2400 переводов)
@@ -1164,6 +1213,22 @@ async function fetchTransfersSince(addr, sinceMs){
   return {transfers:all, truncated:true};                 // история глубже окна — показана не вся
 }
 
+/* кеш на сессию: повторный тап в течение TTL не дёргает сеть заново */
+const radarCache = new Map();           // addr -> {at, since, transfers, truncated}
+const RADAR_TTL  = 90000;               // 90 секунд
+async function getTransfers(addr, sinceMs, force){
+  const c = radarCache.get(addr);
+  // годится, если кеш свежий и покрывает запрошенный период (начат не позже)
+  if(!force && c && (Date.now()-c.at)<RADAR_TTL && c.since<=sinceMs){
+    return {transfers:c.transfers.filter(t=>(Number(t.block_timestamp)||0)>=sinceMs),
+            truncated:c.truncated, at:c.at, cached:true};
+  }
+  const {transfers, truncated} = await fetchTransfersSince(addr, sinceMs);
+  const at = Date.now();
+  radarCache.set(addr, {at, since:sinceMs, transfers, truncated});
+  return {transfers, truncated, at, cached:false};
+}
+
 async function scanRadar(){
   const out=$("outRadar");
   const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
@@ -1181,7 +1246,7 @@ async function scanRadar(){
     const comp=comps[i];
     out.innerHTML=`<p class="note">Сканирую конкурентов: ${i+1} / ${comps.length} (за ${days} дн.)…</p>`;
     try{
-      const {transfers, truncated}=await fetchTransfersSince(comp.addr, since);
+      const {transfers, truncated}=await getTransfers(comp.addr, since, false);
       if(truncated) truncatedAny=true;
       transfers.forEach(t=>{
         const info=t.token_info||{};
@@ -1301,6 +1366,11 @@ function switchTab(name){
   renderRadarLists();                                // редактор по умолчанию свёрнут
   $("radarEditToggle").addEventListener("click",()=>$("radarEdit").classList.toggle("open"));
   $("radarFilter").addEventListener("input", renderRadarLists);
+  $("mySave").addEventListener("click",()=>{
+    const arr=parseListText($("myText").value); saveWallets(arr);
+    renderRadarEditors(); renderRadarLists(); renderChips();   // синхрон с вкладкой «Приход»
+    flashToast("Мои кошельки сохранены: "+arr.length);
+  });
   $("compSave").addEventListener("click",()=>{
     const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
     renderRadarEditors(); renderRadarLists(); flashToast("Конкуренты сохранены: "+arr.length);
