@@ -1119,6 +1119,7 @@ async function scanOneAddress(name, addr, selfGroup, force){
       if(m.group==="me" && (!txid || !meSeen.has(txid))){
         if(txid) meSeen.add(txid);
         meTxs.push({ts, amount:amt, txid,
+          toMe: from===addr,                          // он → мой кошелёк = я получил
           fromName: from===addr ? title : m.name,
           toName:   from===addr ? m.name : title});
       }
@@ -1189,8 +1190,19 @@ function renderConnections(r){
 function renderMeTxs(r){
   const txs=r.meTxs.slice().sort((a,b)=>b.ts-a.ts);
   if(!txs.length) return `<p class="note">Операций с твоими кошельками за ${r.days} дн. нет.</p>`;
-  const total=txs.reduce((s,t)=>s+(t.amount||0),0);
-  let html=`<div class="banner" style="background:var(--green-soft);border:1px solid #BDE3D2;color:var(--green)">Операций с твоими кошельками: ${txs.length} · ${nf.format(total)} USDT</div>`;
+  const received=txs.filter(t=>t.toMe).reduce((s,t)=>s+(t.amount||0),0);   // он мне
+  const sent    =txs.filter(t=>!t.toMe).reduce((s,t)=>s+(t.amount||0),0);  // я ему
+  const net=received-sent;
+  const netColor = net>=0 ? "var(--green)" : "var(--red)";
+  let html=`<div class="calc-out" style="margin:0 0 12px">
+      <div class="lbl">Сальдо с тобой · ${txs.length} операц.</div>
+      <div class="big" style="color:${netColor}">${net>=0?"+":"−"}${nf.format(Math.abs(net))} <span style="font-size:18px">USDT</span></div>
+      <div class="brk">
+        <div class="r"><span>Получено от него</span><span>${nf.format(received)} USDT</span></div>
+        <div class="r"><span>Отправлено ему</span><span>${nf.format(sent)} USDT</span></div>
+        <div class="r"><span>Сальдо</span><span>${net>=0?"в мою пользу":"в его пользу"}</span></div>
+      </div>
+    </div>`;
   txs.forEach(t=>{
     const day=t.ts? (fmtTime(t.ts).split(",")[0]||"?") : "?";
     html+=`<div class="edge">
