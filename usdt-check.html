@@ -1105,6 +1105,7 @@ async function scanOneAddress(name, addr, selfGroup, force){
   try{
     const {transfers, truncated, at, cached}=await getTransfers(addr, since, !!force);
     const map=new Map();
+    const meTxs=[], meSeen=new Set();                  // отдельные операции с моими кошельками
     transfers.forEach(t=>{
       const info=t.token_info||{};
       if(info.address!==REAL_USDT) return;             // только настоящий USDT
@@ -1115,6 +1116,12 @@ async function scanOneAddress(name, addr, selfGroup, force){
       const amt=toAmount(t.value,info.decimals)||0;
       const ts=Number(t.block_timestamp)||0;
       const txid=t.transaction_id||"";
+      if(m.group==="me" && (!txid || !meSeen.has(txid))){
+        if(txid) meSeen.add(txid);
+        meTxs.push({ts, amount:amt, txid,
+          fromName: from===addr ? title : m.name,
+          toName:   from===addr ? m.name : title});
+      }
       let e=map.get(cp);
       if(!e){ e={cp, name:m.name, group:m.group, txids:new Set(), total:0, last:0, out:0, inn:0}; map.set(cp,e); }
       if(txid && e.txids.has(txid)) return;
@@ -1128,7 +1135,10 @@ async function scanOneAddress(name, addr, selfGroup, force){
     else { lastAct = await lastActivityMs(addr); }       // 0 — нет вовсе, null — ошибка
     const inactiveDays = lastAct==null ? null : (lastAct===0 ? Infinity : (Date.now()-lastAct)/86400000);
 
-    renderOne(out, title, Array.from(map.values()), days, truncated, selfGroup, {at, cached, inactiveDays});
+    radarReport={selfName:title, selfGroup, edges:Array.from(map.values()), meTxs,
+                 days, truncated, meta:{at, cached, inactiveDays}};
+    radarView="general";
+    renderReport();
   }catch(e){
     out.innerHTML=`<p class="note err">${netMsg(e)}</p>`;
   }
@@ -1145,50 +1155,91 @@ function oneCard(e, compName, cls){
   </div>`;
 }
 
-function renderOne(out, selfName, list, days, truncated, selfGroup, meta){
-  const byGroup=g=>list.filter(e=>e.group===g).sort((a,b)=>b.last-a.last);
-  // какие секции и в каком порядке показывать в зависимости от роли «себя»
-  const CFG = {
-    comp:   [{g:"client", t:"⚠️ Связи с твоими клиентами", red:true},
-             {g:"comp",   t:"С другими конкурентами"},
-             {g:"me",     t:"С твоими кошельками"}],
-    client: [{g:"comp",   t:"⚠️ Работает с конкурентами",  red:true},
-             {g:"client", t:"С другими клиентами"},
-             {g:"me",     t:"С твоими кошельками"}],
-    me:     [{g:"client", t:"Твои клиенты"},
-             {g:"comp",   t:"⚠️ Замечен с конкурентами",   red:true},
-             {g:"me",     t:"Между твоими кошельками"}],
-  };
-  const cfg = CFG[selfGroup] || CFG.comp;
+let radarReport=null;          // данные последнего отчёта (для смены вида без перезапроса)
+let radarView="general";       // 'general' (общие связи) | 'me' (операции со мной)
 
-  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(selfName)} · за ${days} дн.</div>`;
-  if(meta && meta.at){
-    const clock=new Date(meta.at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
-    html+=`<p class="hint" style="margin:0 2px 8px">${meta.cached?"Из кеша · ":""}данные на ${clock} · <button class="prefill" id="radarRefresh" style="margin:0">↻ обновить</button></p>`;
-  }
-  if(truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
-  if(meta && meta.inactiveDays!=null && meta.inactiveDays>=DEAD_DAYS){
-    const txt = isFinite(meta.inactiveDays)
-      ? `💤 Кошелёк неактивен ${Math.floor(meta.inactiveDays)} дн. — возможно, мёртвый. Стоит удалить из базы.`
-      : `💤 У кошелька нет ни одной USDT-операции — возможно, мёртвый. Стоит удалить из базы.`;
-    html+=`<div class="banner" style="background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)">${txt}</div>`;
-  }
+// секции «общих связей» по роли. Красным — только бизнес-тревога; для «меня» тревоги нет.
+const RADAR_SECTIONS = {
+  comp:   [{g:"client", t:"⚠️ Связи с твоими клиентами", red:true},
+           {g:"comp",   t:"С другими конкурентами"},
+           {g:"me",     t:"С твоими кошельками"}],
+  client: [{g:"comp",   t:"⚠️ Работает с конкурентами",  red:true},
+           {g:"client", t:"С другими клиентами"},
+           {g:"me",     t:"С твоими кошельками"}],
+  me:     [{g:"client", t:"Твои клиенты"},
+           {g:"comp",   t:"Конкуренты"},
+           {g:"me",     t:"Между твоими кошельками"}],
+};
 
-  let any=false;
+function renderConnections(r){
+  const byGroup=g=>r.edges.filter(e=>e.group===g).sort((a,b)=>b.last-a.last);
+  const cfg=RADAR_SECTIONS[r.selfGroup]||RADAR_SECTIONS.comp;
+  let html="", any=false;
   cfg.forEach(s=>{
     const arr=byGroup(s.g); if(!arr.length) return; any=true;
     html += s.red
       ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${s.t}: ${arr.length}</div>`
       : `<div class="more-h">${s.t}</div>`;
-    arr.forEach(e=>html+=oneCard(e, selfName, s.red?"bad":""));
+    arr.forEach(e=>html+=oneCard(e, r.selfName, s.red?"bad":""));
   });
-  if(!any) html+=`<p class="note">За ${days} дн. связей с твоей базой нет.</p>`;
+  if(!any) html+=`<p class="note">За ${r.days} дн. связей с твоей базой нет.</p>`;
+  return html;
+}
+
+function renderMeTxs(r){
+  const txs=r.meTxs.slice().sort((a,b)=>b.ts-a.ts);
+  if(!txs.length) return `<p class="note">Операций с твоими кошельками за ${r.days} дн. нет.</p>`;
+  const total=txs.reduce((s,t)=>s+(t.amount||0),0);
+  let html=`<div class="banner" style="background:var(--green-soft);border:1px solid #BDE3D2;color:var(--green)">Операций с твоими кошельками: ${txs.length} · ${nf.format(total)} USDT</div>`;
+  txs.forEach(t=>{
+    const day=t.ts? (fmtTime(t.ts).split(",")[0]||"?") : "?";
+    html+=`<div class="edge">
+      <div class="edge-h"><b>${esc(t.fromName)}</b> → <b>${esc(t.toName)}</b></div>
+      <div class="edge-s">${nf.format(t.amount)} USDT · ${esc(day)}</div>
+      <div class="edge-a">
+        <a class="txlink" href="https://tronscan.org/#/transaction/${esc(t.txid)}" target="_blank" rel="noopener">${esc(short(t.txid,8,6))} ↗</a>
+        <button class="copy" data-c="${esc(t.txid)}">копир.</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+
+function renderReport(){
+  const r=radarReport; if(!r) return;
+  const out=$("outRadar");
+  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(r.selfName)} · за ${r.days} дн.</div>`;
+  if(r.meta && r.meta.at){
+    const clock=new Date(r.meta.at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
+    html+=`<p class="hint" style="margin:0 2px 8px">${r.meta.cached?"Из кеша · ":""}данные на ${clock} · <button class="prefill" id="radarRefresh" style="margin:0">↻ обновить</button></p>`;
+  }
+  if(r.truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
+  if(r.meta && r.meta.inactiveDays!=null && r.meta.inactiveDays>=DEAD_DAYS){
+    const txt = isFinite(r.meta.inactiveDays)
+      ? `💤 Кошелёк неактивен ${Math.floor(r.meta.inactiveDays)} дн. — возможно, мёртвый. Стоит удалить из базы.`
+      : `💤 У кошелька нет ни одной USDT-операции — возможно, мёртвый. Стоит удалить из базы.`;
+    html+=`<div class="banner" style="background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)">${txt}</div>`;
+  }
+
+  // переключатель «Общие / Со мной» — только для конкурента и клиента (для «меня» это и так я)
+  if(r.selfGroup!=="me"){
+    html+=`<div class="seg" id="radarView" style="max-width:320px;margin:4px 0 12px">
+      <button type="button" data-v="general" aria-pressed="${radarView==="general"}">Общие связи</button>
+      <button type="button" data-v="me" aria-pressed="${radarView==="me"}">Со мной</button>
+    </div>`;
+  }
+
+  html += (r.selfGroup!=="me" && radarView==="me") ? renderMeTxs(r) : renderConnections(r);
 
   out.innerHTML=html;
   wireCopy(out);
   const rb=$("radarRefresh");
   if(rb && radarLastScan) rb.addEventListener("click",()=>
     scanOneAddress(radarLastScan.name, radarLastScan.addr, radarLastScan.selfGroup, true));
+  const vt=$("radarView");
+  if(vt) vt.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
+    radarView=b.dataset.v; renderReport();        // переключение вида без перезапроса
+  }));
 }
 
 const RADAR_MAX_PAGES = 12;   // потолок страниц на адрес (12×200 = до 2400 переводов)
