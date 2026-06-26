@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0E2A22">
+<title>Проверка прихода USDT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0E2A22; --bg:#EAF0ED; --card:#FFFFFF; --muted:#5C6F68;
+    --line:#D6E0DB; --green:#0E8A5F; --green-soft:#E4F4ED;
+    --red:#C23A2B; --red-soft:#FBE8E5; --amber:#B5731A; --amber-soft:#FFF6E6;
+    --shadow:0 1px 2px rgba(14,42,34,.06),0 8px 24px rgba(14,42,34,.08);
+    --display:"Space Grotesk",system-ui,sans-serif;
+    --mono:"IBM Plex Mono",ui-monospace,monospace;
+    --ui:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--ui); color:var(--ink); background:var(--bg);
+    line-height:1.45; padding:env(safe-area-inset-top) 0 0;
+    min-height:100dvh;
+  }
+  .wrap{max-width:560px; margin:0 auto; padding:20px 16px 40px}
+
+  /* header */
+  header{display:flex;align-items:baseline;gap:10px;margin:6px 2px 16px}
+  .eyebrow{
+    font-family:var(--mono); font-size:11px; font-weight:600;
+    letter-spacing:.18em; text-transform:uppercase; color:var(--green);
+    border:1px solid var(--green); border-radius:999px; padding:3px 9px;
+  }
+  h1{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+
+  /* tabs */
+  .tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 16px;
+    -webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:none;font-family:var(--display);font-weight:600;font-size:14px;
+    color:var(--muted);background:var(--card);border:1.5px solid var(--line);
+    border-radius:11px;padding:9px 14px;cursor:pointer;white-space:nowrap;
+    transition:.12s}
+  .tab[aria-selected="true"]{color:#fff;background:var(--ink);border-color:var(--ink)}
+
+  .pane{display:none}
+  .pane.active{display:block}
+
+  /* form */
+  .panel{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:18px;
+  }
+  label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
+    margin:0 0 6px 2px;letter-spacing:.01em}
+  .field{margin-bottom:14px}
+  .field:last-of-type{margin-bottom:0}
+  input,select{
+    width:100%; font-family:var(--mono); font-size:15px; color:var(--ink);
+    background:#F7FAF8; border:1.5px solid var(--line); border-radius:11px;
+    padding:13px 13px; outline:none; transition:border-color .15s;
+  }
+  select{font-family:var(--ui);font-weight:500}
+  input:focus,select:focus{border-color:var(--green)}
+  input::placeholder{color:#9FB0A9}
+  .row{display:flex;gap:12px}
+  .row .field{flex:1}
+  .input-qr{display:flex;gap:8px}
+  .input-qr input{flex:1}
+  .qr-btn{flex:none;width:48px;font-size:20px;line-height:1;color:var(--ink);
+    background:#F7FAF8;border:1.5px solid var(--line);border-radius:11px;
+    cursor:pointer;display:flex;align-items:center;justify-content:center}
+  .qr-btn:active{transform:scale(.95)}
+  button.go{
+    width:100%; margin-top:16px; font-family:var(--display); font-weight:600;
+    font-size:16px; color:#fff; background:var(--ink); border:none;
+    border-radius:12px; padding:15px; cursor:pointer; letter-spacing:.01em;
+    transition:transform .08s, background .15s;
+  }
+  button.go:active{transform:scale(.985)}
+  button.go:disabled{opacity:.55;cursor:default}
+
+  /* saved wallets */
+  .wallets-h{display:flex;align-items:center;justify-content:space-between;
+    margin:0 2px 8px}
+  .wallets-h span{font-size:12px;font-weight:700;letter-spacing:.04em;
+    text-transform:uppercase;color:var(--muted)}
+  .wallets-h button{font-family:var(--ui);font-size:12px;font-weight:600;
+    color:var(--green);background:none;border:none;cursor:pointer;padding:2px 4px}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:8px;min-height:4px}
+  .chip{font-family:var(--ui);font-weight:600;font-size:13px;color:var(--ink);
+    background:var(--green-soft);border:1.5px solid #BDE3D2;border-radius:999px;
+    padding:7px 13px;cursor:pointer;transition:.1s;max-width:100%;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .chip:active{transform:scale(.96)}
+  .chip.empty{color:var(--muted);background:none;border-style:dashed;cursor:default}
+  .wallet-edit{border-top:1px solid var(--line);margin-top:10px;padding-top:12px;
+    display:none}
+  .wallet-edit.open{display:block}
+  .we-row{display:flex;gap:8px;margin-bottom:8px}
+  .we-row input.name{flex:none;width:34%;font-family:var(--ui)}
+  .we-row input.addr{flex:1;font-size:12.5px}
+
+  /* states */
+  .note{font-size:13px;color:var(--muted);text-align:center;padding:22px 10px}
+  .note.err{color:var(--red)}
+  .banner{font-size:13px;border-radius:11px;padding:12px 14px;margin-bottom:14px;
+    text-align:left}
+  .banner.demo{background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)}
+
+  /* hero verdict card */
+  .hero{
+    position:relative; overflow:hidden; border-radius:18px; padding:22px 20px 20px;
+    border:1.5px solid var(--line); background:var(--card); box-shadow:var(--shadow);
+    margin-bottom:14px;
+  }
+  .hero.ok{background:var(--green-soft);border-color:#BDE3D2}
+  .hero.bad{background:var(--red-soft);border-color:#F1C7C0}
+  .hero .when{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
+  .amount{font-family:var(--mono);font-weight:600;font-size:40px;letter-spacing:-.02em;
+    line-height:1.05;margin:8px 0 2px;word-break:break-all}
+  .amount .sym{font-size:18px;font-weight:500;color:var(--muted);margin-left:6px}
+  .hero.ok .amount{color:var(--green)} .hero.bad .amount{color:var(--red)}
+  .stamp{
+    position:absolute; top:16px; right:-6px; font-family:var(--display);
+    font-weight:700; font-size:15px; letter-spacing:.14em; text-transform:uppercase;
+    padding:6px 12px; border:2.5px solid currentColor; border-radius:7px;
+    transform:rotate(7deg); opacity:.9;
+  }
+  .hero.ok .stamp{color:var(--green)} .hero.bad .stamp{color:var(--red)}
+  .reasons{margin-top:14px;display:flex;flex-direction:column;gap:7px}
+  .reason{font-size:13.5px;font-weight:500;display:flex;gap:8px;align-items:flex-start}
+  .reason .dot{flex:none;margin-top:6px;width:6px;height:6px;border-radius:50%;
+    background:var(--red)}
+  .hero.ok .reason .dot{background:var(--green)}
+
+  /* meta rows */
+  .meta{border-top:1px solid rgba(14,42,34,.1);margin-top:16px;padding-top:12px;
+    display:grid;gap:9px}
+  .kv{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;
+    font-size:12.5px}
+  .kv .k{color:var(--muted);font-weight:600}
+  .kv .v{font-family:var(--mono);font-size:12px;word-break:break-all}
+  .kv .copy{flex:none;font-family:var(--ui);font-size:11px;font-weight:600;
+    color:var(--green);background:none;border:none;cursor:pointer;padding:2px 4px}
+  a.txlink{font-family:var(--mono);font-size:12px;color:var(--green);
+    text-decoration:none;border-bottom:1px solid currentColor}
+
+  /* secondary list */
+  .more-h{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+    color:var(--muted);margin:20px 4px 10px}
+  .item{display:flex;align-items:center;gap:12px;background:var(--card);
+    border:1px solid var(--line);border-radius:13px;padding:12px 14px;margin-bottom:9px}
+  .tag{flex:none;font-family:var(--display);font-weight:700;font-size:10.5px;
+    letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px}
+  .tag.ok{color:var(--green);background:var(--green-soft)}
+  .tag.bad{color:var(--red);background:var(--red-soft)}
+  .item .amt{font-family:var(--mono);font-weight:600;font-size:15px;flex:1;
+    word-break:break-all}
+  .item .t{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
+
+  /* calculator */
+  .seg{display:flex;gap:6px;margin-bottom:14px}
+  .seg button{flex:1;font-family:var(--display);font-weight:600;font-size:13.5px;
+    color:var(--muted);background:#F7FAF8;border:1.5px solid var(--line);
+    border-radius:11px;padding:11px 8px;cursor:pointer;transition:.1s}
+  .seg button[aria-pressed="true"]{color:#fff;background:var(--green);border-color:var(--green)}
+  .calc-out{background:var(--green-soft);border:1.5px solid #BDE3D2;border-radius:16px;
+    padding:18px 18px 16px;margin-top:16px}
+  .calc-out .lbl{font-size:12.5px;font-weight:600;color:var(--muted)}
+  .calc-out .big{font-family:var(--mono);font-weight:600;font-size:34px;
+    color:var(--green);letter-spacing:-.02em;margin:4px 0 2px;word-break:break-all}
+  .calc-out .brk{font-family:var(--mono);font-size:12.5px;color:var(--ink);
+    border-top:1px solid rgba(14,42,34,.1);margin-top:12px;padding-top:10px;
+    display:grid;gap:5px}
+  .calc-out .brk .r{display:flex;justify-content:space-between;gap:10px}
+  .calc-out .brk .r span:last-child{font-weight:600}
+  .hint{font-size:12px;color:var(--muted);margin:8px 2px 0;line-height:1.4}
+  .prefill{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--green);
+    background:none;border:none;cursor:pointer;padding:0;margin:6px 2px 0}
+
+  footer{font-size:12px;color:var(--muted);line-height:1.5;margin-top:24px;
+    padding:14px 6px 0;border-top:1px solid var(--line)}
+  .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
+    background:var(--ink);color:#fff;font-size:13px;font-weight:500;padding:10px 16px;
+    border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  /* QR scanner overlay */
+  .scan{position:fixed;inset:0;background:rgba(14,42,34,.94);z-index:20;
+    display:none;flex-direction:column;align-items:center;justify-content:center;
+    padding:24px;gap:16px}
+  .scan.open{display:flex}
+  .scan video{width:100%;max-width:340px;aspect-ratio:1;object-fit:cover;
+    border-radius:16px;background:#000;border:2px solid var(--green)}
+  .scan p{color:#EAF0ED;font-size:13px;text-align:center;max-width:340px}
+  .scan .acts{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .scan .acts button{font-family:var(--display);font-weight:600;font-size:14px;
+    border:1.5px solid #EAF0ED;border-radius:11px;padding:11px 16px;cursor:pointer;
+    background:none;color:#EAF0ED}
+  .scan .acts button.prim{background:var(--green);border-color:var(--green);color:#fff}
+
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <span class="eyebrow">TRC-20</span>
+    <h1>Касса USDT</h1>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tab" role="tab" data-tab="arrival" aria-selected="true">Приход</button>
+    <button class="tab" role="tab" data-tab="tx" aria-selected="false">Операция</button>
+    <button class="tab" role="tab" data-tab="taint" aria-selected="false">Грязность</button>
+    <button class="tab" role="tab" data-tab="calc" aria-selected="false">Калькулятор</button>
+  </nav>
+
+  <!-- ── Приход ─────────────────────────────────────────── -->
+  <section class="pane active" id="pane-arrival">
+    <div class="panel">
+      <div class="wallets-h">
+        <span>Мои кошельки</span>
+        <button id="wEditToggle" type="button">✎ изменить</button>
+      </div>
+      <div class="chips" id="chips-arrival"></div>
+      <div class="wallet-edit" id="walletEdit"></div>
+
+      <div class="field" style="margin-top:14px">
+        <label for="addr">Адрес получателя (или впиши разово)</label>
+        <div class="input-qr">
+          <input id="addr" inputmode="latin" autocapitalize="off" autocorrect="off"
+                 spellcheck="false" placeholder="T…">
+          <button class="qr-btn" type="button" id="qrAddr" title="Сканировать QR">▣</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="expect">Ждём сумму (необязательно)</label>
+          <input id="expect" inputmode="decimal" placeholder="напр. 23219">
+        </div>
+        <div class="field" style="max-width:108px">
+          <label for="limit">Сколько</label>
+          <input id="limit" inputmode="numeric" value="5">
+        </div>
+      </div>
+      <button class="go" id="goArrival">Проверить приход</button>
+    </div>
+    <div id="outArrival"></div>
+  </section>
+
+  <!-- ── Операция (по хэшу/ссылке) ──────────────────────── -->
+  <section class="pane" id="pane-tx">
+    <div class="panel">
+      <div class="field">
+        <label for="txid">Хэш транзакции или ссылка Tronscan</label>
+        <div class="input-qr">
+          <input id="txid" inputmode="latin" autocapitalize="off" autocorrect="off"
+                 spellcheck="false" placeholder="64 символа или tronscan.org/#/transaction/…">
+          <button class="qr-btn" type="button" id="qrTx" title="Сканировать QR">▣</button>
+        </div>
+      </div>
+      <div class="field">
+        <label for="txExpect">Ждём сумму (необязательно)</label>
+        <input id="txExpect" inputmode="decimal" placeholder="напр. 23219">
+      </div>
+      <p class="hint">Если впишешь свой адрес в «Приход», проверю заодно, что перевод
+        пришёл именно на него.</p>
+      <button class="go" id="goTx">Проверить операцию</button>
+    </div>
+    <div id="outTx"></div>
+  </section>
+
+  <!-- ── Грязность (чёрный список) ──────────────────────── -->
+  <section class="pane" id="pane-taint">
+    <div class="panel">
+      <div class="chips" id="chips-taint"></div>
+      <div class="field" style="margin-top:6px">
+        <label for="taintAddr">Адрес для проверки</label>
+        <div class="input-qr">
+          <input id="taintAddr" inputmode="latin" autocapitalize="off" autocorrect="off"
+                 spellcheck="false" placeholder="T…">
+          <button class="qr-btn" type="button" id="qrTaint" title="Сканировать QR">▣</button>
+        </div>
+      </div>
+      <p class="hint">Проверяю по чёрному списку Tether прямо в сети (isBlackListed).
+        Ловит адреса, которые Tether заморозил. Это не полный AML-анализ происхождения
+        монет — место под платный скоринг оставлено на потом.</p>
+      <button class="go" id="goTaint">Проверить адрес</button>
+    </div>
+    <div id="outTaint"></div>
+  </section>
+
+  <!-- ── Калькулятор ────────────────────────────────────── -->
+  <section class="pane" id="pane-calc">
+    <div class="panel">
+      <div class="seg" id="calcDir">
+        <button type="button" data-dir="u2c" aria-pressed="true">USDT → наличные</button>
+        <button type="button" data-dir="c2u" aria-pressed="false">Наличные → USDT</button>
+      </div>
+      <div class="field">
+        <label id="calcAmtLbl" for="calcAmt">Получено USDT</label>
+        <input id="calcAmt" inputmode="decimal" placeholder="0">
+        <button class="prefill" type="button" id="calcPrefill" hidden>↳ подставить проверенную сумму</button>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="calcRate">Курс (за 1 USDT)</label>
+          <input id="calcRate" inputmode="decimal" placeholder="напр. 95">
+        </div>
+        <div class="field" style="max-width:120px">
+          <label for="calcPct">Процент</label>
+          <input id="calcPct" inputmode="decimal" placeholder="напр. 2">
+        </div>
+      </div>
+      <div class="field">
+        <label for="calcMode">Как применить процент</label>
+        <select id="calcMode">
+          <option value="fee">Комиссия — вычесть из суммы клиента</option>
+          <option value="markup">Наценка — добавить к сумме клиента</option>
+        </select>
+      </div>
+      <div class="field" style="max-width:160px">
+        <label for="calcCur">Валюта наличных</label>
+        <input id="calcCur" inputmode="latin" placeholder="₽ / $ / сум" value="₽">
+      </div>
+      <button class="go" id="goCalc">Посчитать</button>
+      <div id="outCalc"></div>
+    </div>
+  </section>
+
+  <footer>
+    «Подлинно» = это настоящий USDT (контракт Tether) и он пришёл на твой адрес.
+    Это не проверка на заморозку или «грязные» монеты и не гарантия необратимости —
+    для крупных сумм всё равно открой кошелёк и убедись, что вырос расходуемый баланс.
+  </footer>
+</div>
+
+<div class="toast" id="toast">Скопировано</div>
+
+<!-- QR scanner -->
+<div class="scan" id="scan">
+  <video id="scanVideo" playsinline muted></video>
+  <p id="scanMsg">Наведи камеру на QR-код</p>
+  <div class="acts">
+    <button type="button" class="prim" id="scanPick">📷 Загрузить картинку</button>
+    <button type="button" id="scanClose">Закрыть</button>
+  </div>
+  <input type="file" id="scanFile" accept="image/*" hidden>
+</div>
+
+<script>
+"use strict";
+
+/* ── Настройки ───────────────────────────────────────────────
+   Адрес можно вписать один раз в «Мои кошельки» (хранится в браузере),
+   либо открыть страницу со ссылкой  …/usdt-check.html#addr=Txxxx
+   API-ключ TronGrid не нужен; если упрёшься в лимит — впиши бесплатный ключ. */
+const REAL_USDT       = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
+const DEFAULT_ADDRESS = "";          // ← твой адрес сюда (необязательно)
+const TRONGRID_KEY    = "";          // ← необязательно
+/* ───────────────────────────────────────────────────────────── */
+
+const USDT_LOOKALIKE = ["USDT","USDТ","USDT.","USDT ","ＵＳＤＴ"]; // вкл. юникод-двойников
+const DEMO_RECIPIENT = "TJZ7d9kQm4Xy2bVcHnP8sRfWqLtUeAoG5x"; // фиктивный адрес для демо-режима
+const WALLET_KEY     = "usdt-check.wallets";
+const N_SLOTS        = 5;
+
+const $ = (id) => document.getElementById(id);
+const ADDR_RE = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
+const TXID_RE = /[0-9a-fA-F]{64}/;
+
+const nf  = new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:6});
+const nf2 = new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});
+
+let lastAmount = null; // последняя проверенная сумма прихода — для калькулятора
+
+/* ── утилиты ──────────────────────────────────────────────── */
+function short(s, head=8, tail=6){
+  if(!s) return "";
+  return s.length > head+tail+1 ? s.slice(0,head)+"…"+s.slice(-tail) : s;
+}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));}
+function toAmount(value, decimals){
+  const d = Number.isFinite(+decimals) ? +decimals : 6;
+  const n = Number(value) / Math.pow(10, d);
+  return Number.isFinite(n) ? n : null;
+}
+function fmtTime(ms){
+  const t = Number(ms);
+  if(!Number.isFinite(t)) return "?";
+  return new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",
+    year:"numeric",hour:"2-digit",minute:"2-digit"});
+}
+
+/* base58check → 20-байтовый hex-адрес (для ABI-параметра isBlackListed) */
+const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+function base58ToBytes(s){
+  let num = 0n;
+  for(const ch of s){ const i = B58.indexOf(ch); if(i<0) return null; num = num*58n + BigInt(i); }
+  let hex = num.toString(16); if(hex.length % 2) hex = "0"+hex;
+  const bytes = (hex.match(/../g)||[]).map(h=>parseInt(h,16));
+  for(const ch of s){ if(ch==="1") bytes.unshift(0); else break; }
+  return bytes;
+}
+function addrToAbiParam(addr){
+  const b = base58ToBytes(addr);
+  if(!b || b.length < 21) return null;          // [0x41][20 байт][4 байта контр.суммы]
+  const core = b.slice(1, 21);                  // 20 байт самого адреса
+  const hex  = core.map(x=>x.toString(16).padStart(2,"0")).join("");
+  return hex.padStart(64,"0");                  // ABI: адрес слева дополнен нулями до 32 байт
+}
+
+/* ── сохранённые кошельки ─────────────────────────────────── */
+function loadWallets(){
+  try{
+    const raw = localStorage.getItem(WALLET_KEY);
+    const arr = raw ? JSON.parse(raw) : [];
+    return Array.isArray(arr) ? arr.slice(0,N_SLOTS) : [];
+  }catch(e){ return []; }
+}
+function saveWallets(arr){
+  try{ localStorage.setItem(WALLET_KEY, JSON.stringify(arr)); }catch(e){}
+}
+function renderChips(){
+  const wallets = loadWallets().filter(w=>w && ADDR_RE.test((w.addr||"").trim()));
+  [["chips-arrival","addr"],["chips-taint","taintAddr"]].forEach(([cid,inputId])=>{
+    const box = $(cid); if(!box) return;
+    box.innerHTML = "";
+    if(!wallets.length){
+      box.innerHTML = `<span class="chip empty">Кошельки не заданы — нажми «✎ изменить»</span>`;
+      return;
+    }
+    wallets.forEach(w=>{
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "chip";
+      b.textContent = w.name?.trim() || short(w.addr,6,5);
+      b.title = w.addr;
+      b.addEventListener("click",()=>{ $(inputId).value = w.addr.trim(); $(inputId).focus(); });
+      box.appendChild(b);
+    });
+  });
+}
+function renderWalletEditor(){
+  const box = $("walletEdit");
+  const wallets = loadWallets();
+  let html = "";
+  for(let i=0;i<N_SLOTS;i++){
+    const w = wallets[i] || {name:"",addr:""};
+    html += `<div class="we-row">
+      <input class="name" data-i="${i}" data-f="name" placeholder="Имя ${i+1}" value="${esc(w.name||"")}">
+      <input class="addr" data-i="${i}" data-f="addr" placeholder="T… адрес" value="${esc(w.addr||"")}"
+             autocapitalize="off" autocorrect="off" spellcheck="false">
+    </div>`;
+  }
+  html += `<button class="go" id="walletSave" style="margin-top:6px">Сохранить кошельки</button>`;
+  box.innerHTML = html;
+  $("walletSave").addEventListener("click",()=>{
+    const next = [];
+    for(let i=0;i<N_SLOTS;i++){
+      const name = box.querySelector(`input[data-i="${i}"][data-f="name"]`).value.trim();
+      const addr = box.querySelector(`input[data-i="${i}"][data-f="addr"]`).value.trim();
+      if(addr){
+        if(!ADDR_RE.test(addr)){ flashToast(`Кошелёк ${i+1}: адрес не похож на TRON`); return; }
+        next.push({name,addr});
+      }
+    }
+    saveWallets(next);
+    renderChips();
+    box.classList.remove("open");
+    flashToast("Кошельки сохранены");
+  });
+}
+
+/* ── классификация (КРИТИЧЕСКИЙ ИНВАРИАНТ — не менять логику) ─ */
+function classify(tr, myAddr, expect){
+  const info = tr.token_info || {};
+  const contract = info.address || "";
+  const symbol   = info.symbol  || "?";
+  const amount   = toAmount(tr.value, info.decimals);
+  const to       = tr.to || "";
+  const realUSDT = contract === REAL_USDT;
+  const reasons  = [];
+
+  if(!realUSDT){
+    if(USDT_LOOKALIKE.includes((symbol||"").trim()))
+      reasons.push("Подделка: символ USDT, но контракт чужой — это не настоящий Tether");
+    else
+      reasons.push("Это не USDT, а посторонний токен «"+symbol+"»");
+  }
+  if(myAddr && to !== myAddr)
+    reasons.push("Получатель не совпал с твоим адресом");
+  if(expect != null && amount != null && Math.abs(amount - expect) > 1e-6)
+    reasons.push("Сумма "+nf.format(amount)+" не совпала с ожидаемой "+nf.format(expect));
+
+  const ok = realUSDT && reasons.length === 0;
+  if(ok) reasons.push("Настоящий USDT, пришёл на твой адрес");
+  return {ok, symbol, amount, contract, from:tr.from||"", to,
+          time:fmtTime(tr.block_timestamp), tx:tr.transaction_id||"", reasons};
+}
+
+/* HTML карточки-вердикта (общая для «Прихода» и «Операции») */
+function heroHTML(c){
+  const cls = c.ok ? "ok" : "bad";
+  const stamp = c.ok ? "Подлинно" : "Внимание";
+  const amt = c.amount != null ? nf.format(c.amount) : "?";
+  return `<div class="hero ${cls}">
+      <div class="when">${esc(c.time)}</div>
+      <span class="stamp">${stamp}</span>
+      <div class="amount">${amt}<span class="sym">${esc(c.symbol)}</span></div>
+      <div class="reasons">
+        ${c.reasons.map(r=>`<div class="reason"><span class="dot"></span><span>${esc(r)}</span></div>`).join("")}
+      </div>
+      <div class="meta">
+        <div class="kv"><span class="k">От</span><span class="v">${esc(short(c.from,10,8))}</span>
+          <button class="copy" data-c="${esc(c.from)}">копировать</button></div>
+        <div class="kv"><span class="k">Контракт</span><span class="v">${esc(short(c.contract,10,8))}</span>
+          <button class="copy" data-c="${esc(c.contract)}">копировать</button></div>
+        <div class="kv"><span class="k">Транзакция</span>
+          <a class="txlink" href="https://tronscan.org/#/transaction/${esc(c.tx)}" target="_blank" rel="noopener">${esc(short(c.tx,8,6))} ↗</a>
+          <button class="copy" data-c="${esc(c.tx)}">копировать</button></div>
+      </div>
+    </div>`;
+}
+function wireCopy(out){
+  out.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",()=>copy(b.dataset.c)));
+}
+
+/* ── вкладка «Приход» ─────────────────────────────────────── */
+function demoData(mode){
+  const me = DEMO_RECIPIENT;
+  const FAKE_CONTRACT = "TPp9rD3kSxWqVbNcMgHfLtUeAoZ7y2sJ4d";
+  const base = 1750000000000, day = 86400000;
+  const mk = (contract, symbol, units, ageDays, from, tx) => ({
+    token_info:{address:contract, symbol, decimals:6},
+    value:String(units), to:me, from,
+    block_timestamp:base - ageDays*day, transaction_id:tx
+  });
+  const f  = mk(FAKE_CONTRACT,"USDT",  23219000000, 0, "TGjYx9scamSenderQwErTyUiOpAsDfGhJ", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef");
+  const g1 = mk(REAL_USDT,    "USDT",   1500000000, 1, "TU4xK7nVbCmZpQrStUvWxYz123456789Ab", "5f3c9a2b1d8e47c6a09f12b34c56d78e9012f345a6b7c8d9e0f1a2b3c4d5e6f7");
+  const x  = mk(FAKE_CONTRACT,"Reward", 9999000000, 2, "TPr0aZ8yXwVuTsRqPnMlKjHgFdSc7654Bv", "feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface");
+  const g2 = mk(REAL_USDT,    "USDT",   8000000000, 3, "TBn7mQ2pLkJhGfDsAzXcVbNm9876543210T", "0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9");
+  return mode === "ok" ? [g1,g2,x,f] : [f,g1,x,g2];
+}
+
+async function checkArrival(){
+  const out  = $("outArrival");
+  const demo = new URLSearchParams(location.hash.slice(1)).get("demo");
+  if(demo){
+    $("addr").value = DEMO_RECIPIENT;
+    renderArrival(demoData(demo), DEMO_RECIPIENT, parseNum($("expect").value));
+    out.insertAdjacentHTML("afterbegin",
+      `<div class="banner demo">🧪 Демо-режим: данные ненастоящие, сеть не запрашивается. Убери «#demo=…» из ссылки для реальной проверки.</div>`);
+    return;
+  }
+
+  const addr   = $("addr").value.trim();
+  const expect = parseNum($("expect").value);
+  let limit = parseInt($("limit").value,10); if(!(limit>0)) limit=5; if(limit>20) limit=20;
+
+  if(!ADDR_RE.test(addr)){
+    out.innerHTML = `<p class="note err">Это не похоже на адрес TRON. Адрес начинается с «T» и состоит из 34 символов.</p>`;
+    return;
+  }
+  setBusy("goArrival","Проверяю…",true);
+  out.innerHTML = `<p class="note">Запрашиваю последние переводы…</p>`;
+  try{
+    const url = `https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=${limit}&only_to=true`;
+    const res = await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    if(!data.success) throw new Error("bad-address");
+    renderArrival(data.data || [], addr, expect);
+  }catch(e){
+    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
+  }finally{
+    setBusy("goArrival","Проверить приход",false);
+  }
+}
+
+function renderArrival(list, myAddr, expect){
+  const out = $("outArrival");
+  if(!list.length){
+    out.innerHTML = `<p class="note">Входящих переводов на этот адрес пока нет.</p>`;
+    return;
+  }
+  const first = classify(list[0], myAddr, expect); // сверка суммы — только с самым свежим
+  if(first.ok && first.amount != null){ lastAmount = first.amount; offerPrefill(); }
+
+  let html = heroHTML(first);
+  if(list.length > 1){
+    html += `<div class="more-h">Ранее</div>`;
+    for(let i=1;i<list.length;i++){
+      const r = classify(list[i], myAddr, null);
+      html += `<div class="item">
+        <span class="tag ${r.ok?"ok":"bad"}">${r.ok?"USDT":"проверь"}</span>
+        <span class="amt">${r.amount!=null?nf.format(r.amount):"?"} ${esc(r.symbol)}</span>
+        <span class="t">${esc((r.time.split(",")[0])||"")}</span>
+      </div>`;
+    }
+  }
+  out.innerHTML = html;
+  wireCopy(out);
+}
+
+/* ── вкладка «Операция» (проверка по хэшу) ────────────────── */
+async function checkTx(){
+  const out = $("outTx");
+  const raw = $("txid").value.trim();
+  const m = raw.match(TXID_RE);
+  if(!m){
+    out.innerHTML = `<p class="note err">Не нашёл хэш транзакции. Вставь 64-символьный хэш или ссылку Tronscan.</p>`;
+    return;
+  }
+  const hash = m[0].toLowerCase();
+  const expect = parseNum($("txExpect").value);
+  const myAddr = ADDR_RE.test($("addr").value.trim()) ? $("addr").value.trim() : "";
+
+  setBusy("goTx","Проверяю…",true);
+  out.innerHTML = `<p class="note">Запрашиваю транзакцию…</p>`;
+  try{
+    const url = `https://api.trongrid.io/v1/transactions/${hash}/events?only_confirmed=true`;
+    const res = await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const transfers = (data.data||[]).filter(e=>e.event_name==="Transfer" && e.result);
+    if(!transfers.length){
+      out.innerHTML = `<p class="note err">В этой транзакции нет перевода токена TRC-20 (или она ещё не подтверждена).</p>`;
+      return;
+    }
+    // переводов может быть несколько — берём перевод именно USDT, иначе первый
+    const ev = transfers.find(e=>e.contract_address===REAL_USDT) || transfers[0];
+    const r = ev.result;
+    // decimals=6 здесь верны ТОЛЬКО потому, что мы сверяем с конкретным контрактом
+    // REAL_USDT (у него 6). Для чужого контракта это лишь приблизительный показ суммы.
+    const to   = await hexToTronAddr(r.to);
+    const from = await hexToTronAddr(r.from);
+    const tr = {
+      token_info:{address:ev.contract_address||"", symbol:(ev.contract_address===REAL_USDT?"USDT":"?"), decimals:6},
+      value:r.value ?? r.amount ?? "0",
+      to, from,
+      block_timestamp:ev.block_timestamp,
+      transaction_id:hash
+    };
+    const c = classify(tr, myAddr, expect);
+    let html = heroHTML(c);
+    if(!myAddr) html = `<div class="banner demo">ℹ️ Адрес-получатель не задан — проверил только контракт и сумму. Впиши свой адрес во вкладке «Приход», чтобы заодно сверить получателя.</div>` + html;
+    out.innerHTML = html;
+    wireCopy(out);
+  }catch(e){
+    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
+  }finally{
+    setBusy("goTx","Проверить операцию",false);
+  }
+}
+
+/* ── вкладка «Грязность» (чёрный список Tether) ───────────── */
+async function checkTaint(){
+  const out = $("outTaint");
+  const addr = $("taintAddr").value.trim();
+  if(!ADDR_RE.test(addr)){
+    out.innerHTML = `<p class="note err">Это не похоже на адрес TRON.</p>`;
+    return;
+  }
+  const param = addrToAbiParam(addr);
+  if(!param){
+    out.innerHTML = `<p class="note err">Не удалось разобрать адрес.</p>`;
+    return;
+  }
+  setBusy("goTaint","Проверяю…",true);
+  out.innerHTML = `<p class="note">Спрашиваю контракт Tether…</p>`;
+  try{
+    const res = await fetch("https://api.trongrid.io/wallet/triggerconstantcontract",{
+      method:"POST",
+      headers:Object.assign({"Content-Type":"application/json"}, tgHeaders()),
+      body:JSON.stringify({
+        owner_address: addr,
+        contract_address: REAL_USDT,
+        function_selector: "isBlackListed(address)",
+        parameter: param,
+        visible: true
+      })
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const cr = data.constant_result && data.constant_result[0];
+    if(!cr) throw new Error("no-result");
+    const blacklisted = BigInt("0x"+cr) !== 0n;
+    const cls = blacklisted ? "bad" : "ok";
+    const stamp = blacklisted ? "В списке" : "Чисто";
+    const reason = blacklisted
+      ? "Адрес в чёрном списке Tether (заморожен). Не принимай с него USDT."
+      : "Адрес не в чёрном списке Tether на момент проверки.";
+    out.innerHTML = `<div class="hero ${cls}">
+        <span class="stamp">${stamp}</span>
+        <div class="amount" style="font-size:26px">${blacklisted?"Заморожен":"Не заморожен"}</div>
+        <div class="reasons"><div class="reason"><span class="dot"></span><span>${esc(reason)}</span></div></div>
+        <div class="meta">
+          <div class="kv"><span class="k">Адрес</span><span class="v">${esc(short(addr,10,8))}</span>
+            <button class="copy" data-c="${esc(addr)}">копировать</button></div>
+        </div>
+      </div>
+      <p class="hint">Проверка только по чёрному списку Tether. Не показывает происхождение
+        монет и не заменяет полный AML-скоринг.</p>`;
+    wireCopy(out);
+  }catch(e){
+    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
+  }finally{
+    setBusy("goTaint","Проверить адрес",false);
+  }
+}
+
+/* hex-адрес TRON (41… или с ABI-паддингом) → base58check. Асинхронно: нужен SHA-256. */
+function base58Encode(bytes){
+  let num = 0n; for(const b of bytes) num = num*256n + BigInt(b);
+  let out = ""; while(num>0n){ out = B58[Number(num%58n)] + out; num/=58n; }
+  for(const b of bytes){ if(b===0) out = "1"+out; else break; }
+  return out;
+}
+async function sha256(bytes){
+  const buf = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
+  return Array.from(new Uint8Array(buf));
+}
+async function hexToTronAddr(raw){
+  if(typeof raw!=="string") return "";
+  if(ADDR_RE.test(raw)) return raw;                          // уже base58
+  let hex = raw.toLowerCase().replace(/^0x/,"");
+  if(/^0{24}[0-9a-f]{40}$/.test(hex)) hex = hex.slice(24);   // снять ABI-паддинг
+  if(/^[0-9a-f]{40}$/.test(hex)) hex = "41"+hex;             // добавить префикс TRON
+  if(!/^41[0-9a-f]{40}$/.test(hex)) return raw;
+  const body = hex.match(/../g).map(x=>parseInt(x,16));      // 21 байт: 0x41 + адрес
+  try{
+    const h2 = await sha256(await sha256(body));
+    return base58Encode(body.concat(h2.slice(0,4)));         // + 4 байта контрольной суммы
+  }catch(e){ return raw; }
+}
+
+/* ── вкладка «Калькулятор» ────────────────────────────────── */
+let calcDir = "u2c"; // u2c: USDT→наличные, c2u: наличные→USDT
+function setCalcDir(dir){
+  calcDir = dir;
+  document.querySelectorAll("#calcDir button").forEach(b=>
+    b.setAttribute("aria-pressed", String(b.dataset.dir===dir)));
+  $("calcAmtLbl").textContent = dir==="u2c" ? "Получено USDT" : "Получено наличных";
+  offerPrefill();
+  $("outCalc").innerHTML = "";
+}
+function offerPrefill(){
+  const btn = $("calcPrefill");
+  btn.hidden = !(calcDir==="u2c" && lastAmount!=null);
+  if(!btn.hidden) btn.textContent = `↳ подставить проверенную сумму: ${nf.format(lastAmount)} USDT`;
+}
+function calc(){
+  const out = $("outCalc");
+  const amt  = parseNum($("calcAmt").value);
+  const rate = parseNum($("calcRate").value);
+  const pct  = parseNum($("calcPct").value) || 0;
+  const mode = $("calcMode").value;            // fee | markup
+  const cur  = $("calcCur").value.trim() || "";
+  if(amt==null || amt<=0 || rate==null || rate<=0){
+    out.innerHTML = `<p class="note err">Впиши сумму и курс (больше нуля).</p>`;
+    return;
+  }
+  const k = mode==="fee" ? (1 - pct/100) : (1 + pct/100);
+  let gross, net, outLbl, outUnit, grossUnit;
+  if(calcDir==="u2c"){                          // USDT → наличные
+    gross = amt * rate; net = gross * k;
+    outLbl = "К выдаче клиенту"; outUnit = cur; grossUnit = cur;
+  }else{                                        // наличные → USDT
+    gross = amt / rate; net = gross * k;
+    outLbl = "К выдаче клиенту"; outUnit = "USDT"; grossUnit = "USDT";
+  }
+  const fmtOut = outUnit==="USDT" ? nf : nf2;
+  const pctLine = mode==="fee"
+    ? `Комиссия ${pct}%` : `Наценка ${pct}%`;
+  out.innerHTML = `<div class="calc-out">
+      <div class="lbl">${outLbl}</div>
+      <div class="big">${fmtOut.format(net)} <span style="font-size:18px">${esc(outUnit)}</span></div>
+      <div class="brk">
+        <div class="r"><span>${calcDir==="u2c"?`${nf.format(amt)} USDT × ${nf2.format(rate)}`:`${nf2.format(amt)} ${esc(cur)} ÷ ${nf2.format(rate)}`}</span><span>${(outUnit==="USDT"?nf:nf2).format(gross)} ${esc(grossUnit)}</span></div>
+        <div class="r"><span>${pctLine}</span><span>${mode==="fee"?"−":"+"}${(outUnit==="USDT"?nf:nf2).format(Math.abs(gross-net))} ${esc(grossUnit)}</span></div>
+      </div>
+    </div>`;
+}
+
+/* ── QR-сканер (камера + картинка) через BarcodeDetector ──── */
+let scanTarget = null, scanStream = null, scanRAF = null, scanDetector = null;
+function qrSupported(){ return "BarcodeDetector" in window; }
+function getDetector(){
+  if(!scanDetector) scanDetector = new BarcodeDetector({formats:["qr_code"]});
+  return scanDetector;
+}
+function openScanner(onText){
+  scanTarget = onText;
+  const sc = $("scan");
+  if(!qrSupported()){
+    $("scanMsg").textContent = "Этот браузер не умеет читать QR. Открой в Chrome или вставь данные вручную.";
+    $("scanVideo").style.display = "none";
+  }else{
+    $("scanVideo").style.display = "";
+    $("scanMsg").textContent = "Навожу камеру… если не открылась — нажми «Загрузить картинку».";
+    startCamera();
+  }
+  sc.classList.add("open");
+}
+async function startCamera(){
+  if(!qrSupported()) return;
+  try{
+    scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    const v = $("scanVideo"); v.srcObject = scanStream; await v.play();
+    const det = getDetector();
+    const tick = async ()=>{
+      if(!scanStream) return;
+      try{
+        const codes = await det.detect(v);
+        if(codes && codes.length){ handleScan(codes[0].rawValue); return; }
+      }catch(e){}
+      scanRAF = requestAnimationFrame(tick);
+    };
+    scanRAF = requestAnimationFrame(tick);
+  }catch(e){
+    $("scanMsg").textContent = "Камера недоступна (часто так на file://). Нажми «Загрузить картинку».";
+  }
+}
+async function scanImage(file){
+  if(!qrSupported()){ $("scanMsg").textContent = "Этот браузер не умеет читать QR."; return; }
+  try{
+    const bmp = await createImageBitmap(file);
+    const codes = await getDetector().detect(bmp);
+    if(codes && codes.length) handleScan(codes[0].rawValue);
+    else $("scanMsg").textContent = "QR на картинке не распознан. Попробуй другое фото.";
+  }catch(e){
+    $("scanMsg").textContent = "Не удалось прочитать картинку.";
+  }
+}
+function handleScan(text){
+  const cb = scanTarget;
+  closeScanner();
+  if(cb) cb(String(text||"").trim());
+}
+function closeScanner(){
+  if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF=null; }
+  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
+  $("scanVideo").srcObject = null;
+  $("scan").classList.remove("open");
+  scanTarget = null;
+}
+/* из текста QR вытащить адрес TRON или хэш транзакции */
+function extractAddr(t){ const m=(t||"").match(/T[1-9A-HJ-NP-Za-km-z]{33}/); return m?m[0]:""; }
+function extractTx(t){ const m=(t||"").match(TXID_RE); return m?m[0]:""; }
+
+/* ── общие помощники ──────────────────────────────────────── */
+function tgHeaders(){
+  const h = {Accept:"application/json"};
+  if(TRONGRID_KEY) h["TRON-PRO-API-KEY"] = TRONGRID_KEY;
+  return h;
+}
+function netMsg(e){
+  return e && e.message==="bad-address"
+    ? "Не удалось прочитать адрес. Проверь, что он скопирован полностью."
+    : "Не удалось связаться с сетью TRON. Проверь интернет и попробуй ещё раз.";
+}
+function parseNum(v){
+  const s = String(v||"").trim().replace(/\s/g,"").replace(",",".");
+  if(s==="") return null;
+  const n = parseFloat(s);
+  return Number.isFinite(n) ? n : null;
+}
+function setBusy(btnId, text, busy){
+  const b = $(btnId); if(!b) return;
+  b.disabled = busy;
+  if(busy){ b.dataset.label = b.textContent; b.textContent = text; }
+  else if(b.dataset.label){ b.textContent = b.dataset.label; }
+}
+let toastT;
+function copy(text){
+  navigator.clipboard?.writeText(text).then(()=>flashToast("Скопировано")).catch(()=>{});
+}
+function flashToast(msg){
+  const t=$("toast"); t.textContent = msg; t.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1400);
+}
+
+/* ── навигация по вкладкам ────────────────────────────────── */
+function switchTab(name){
+  document.querySelectorAll(".tab").forEach(t=>
+    t.setAttribute("aria-selected", String(t.dataset.tab===name)));
+  document.querySelectorAll(".pane").forEach(p=>
+    p.classList.toggle("active", p.id==="pane-"+name));
+}
+
+/* ── инициализация ────────────────────────────────────────── */
+(function init(){
+  // адрес из ссылки (#addr= / ?addr=) либо из константы
+  const hash = new URLSearchParams(location.hash.slice(1));
+  const qs   = new URLSearchParams(location.search);
+  const a = hash.get("addr") || qs.get("addr") || DEFAULT_ADDRESS;
+  if(a) $("addr").value = a.trim();
+
+  renderChips();
+  renderWalletEditor();
+
+  // вкладки
+  document.querySelectorAll(".tab").forEach(t=>
+    t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+
+  // редактор кошельков
+  $("wEditToggle").addEventListener("click",()=>$("walletEdit").classList.toggle("open"));
+
+  // кнопки проверок
+  $("goArrival").addEventListener("click", checkArrival);
+  $("goTx").addEventListener("click", checkTx);
+  $("goTaint").addEventListener("click", checkTaint);
+  $("goCalc").addEventListener("click", calc);
+
+  // Enter в полях
+  ["addr","expect","limit"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkArrival();}));
+  ["txid","txExpect"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkTx();}));
+  $("taintAddr").addEventListener("keydown",e=>{if(e.key==="Enter")checkTaint();});
+  ["calcAmt","calcRate","calcPct"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")calc();}));
+
+  // калькулятор: направление + подстановка
+  document.querySelectorAll("#calcDir button").forEach(b=>
+    b.addEventListener("click",()=>setCalcDir(b.dataset.dir)));
+  $("calcPrefill").addEventListener("click",()=>{ if(lastAmount!=null) $("calcAmt").value = lastAmount; });
+
+  // QR-кнопки
+  $("qrAddr").addEventListener("click",()=>openScanner(t=>{const a=extractAddr(t); if(a) $("addr").value=a; else flashToast("В QR нет адреса TRON");}));
+  $("qrTaint").addEventListener("click",()=>openScanner(t=>{const a=extractAddr(t); if(a) $("taintAddr").value=a; else flashToast("В QR нет адреса TRON");}));
+  $("qrTx").addEventListener("click",()=>openScanner(t=>{const x=extractTx(t); if(x) $("txid").value=x; else flashToast("В QR нет хэша транзакции");}));
+  $("scanClose").addEventListener("click", closeScanner);
+  $("scanPick").addEventListener("click",()=>$("scanFile").click());
+  $("scanFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) scanImage(f); e.target.value=""; });
+
+  // авто-запуск демо, если открыто с #demo=fake / #demo=ok
+  if(hash.get("demo")) checkArrival();
+})();
+</script>
+</body>
+</html>
