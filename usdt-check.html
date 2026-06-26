@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0E2A22">
-<title>Проверка прихода USDT</title>
+<title>USDT Cashier</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,72 +20,53 @@
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{-webkit-text-size-adjust:100%}
-  body{
-    font-family:var(--ui); color:var(--ink); background:var(--bg);
-    line-height:1.45; padding:env(safe-area-inset-top) 0 0;
-    min-height:100dvh;
-  }
+  body{font-family:var(--ui); color:var(--ink); background:var(--bg);
+    line-height:1.45; padding:env(safe-area-inset-top) 0 0; min-height:100dvh;}
   .wrap{max-width:560px; margin:0 auto; padding:20px 16px 40px}
 
-  /* header */
   header{display:flex;align-items:baseline;gap:10px;margin:6px 2px 16px}
-  .eyebrow{
-    font-family:var(--mono); font-size:11px; font-weight:600;
+  .eyebrow{font-family:var(--mono); font-size:11px; font-weight:600;
     letter-spacing:.18em; text-transform:uppercase; color:var(--green);
-    border:1px solid var(--green); border-radius:999px; padding:3px 9px;
-  }
+    border:1px solid var(--green); border-radius:999px; padding:3px 9px;}
   h1{font-family:var(--display);font-weight:700;font-size:22px;letter-spacing:-.01em}
+  .lang{margin-left:auto;font-family:var(--mono);font-size:12px;font-weight:600;
+    color:var(--ink);background:var(--card);border:1.5px solid var(--line);
+    border-radius:999px;padding:5px 11px;cursor:pointer}
 
-  /* tabs */
   .tabs{display:flex;gap:6px;overflow-x:auto;margin:0 0 16px;
     -webkit-overflow-scrolling:touch;scrollbar-width:none}
   .tabs::-webkit-scrollbar{display:none}
   .tab{flex:none;font-family:var(--display);font-weight:600;font-size:14px;
     color:var(--muted);background:var(--card);border:1.5px solid var(--line);
-    border-radius:11px;padding:9px 14px;cursor:pointer;white-space:nowrap;
-    transition:.12s}
+    border-radius:11px;padding:9px 14px;cursor:pointer;white-space:nowrap;transition:.12s}
   .tab[aria-selected="true"]{color:#fff;background:var(--ink);border-color:var(--ink)}
+  .pane{display:none} .pane.active{display:block}
 
-  .pane{display:none}
-  .pane.active{display:block}
-
-  /* form */
-  .panel{
-    background:var(--card); border:1px solid var(--line); border-radius:16px;
-    padding:16px; box-shadow:var(--shadow); margin-bottom:18px;
-  }
+  .panel{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:16px; box-shadow:var(--shadow); margin-bottom:18px;}
   label{display:block;font-size:12.5px;font-weight:600;color:var(--muted);
     margin:0 0 6px 2px;letter-spacing:.01em}
-  .field{margin-bottom:14px}
-  .field:last-of-type{margin-bottom:0}
-  input,select{
-    width:100%; font-family:var(--mono); font-size:15px; color:var(--ink);
+  .field{margin-bottom:14px} .field:last-of-type{margin-bottom:0}
+  input,select{width:100%; font-family:var(--mono); font-size:15px; color:var(--ink);
     background:#F7FAF8; border:1.5px solid var(--line); border-radius:11px;
-    padding:13px 13px; outline:none; transition:border-color .15s;
-  }
+    padding:13px 13px; outline:none; transition:border-color .15s;}
   select{font-family:var(--ui);font-weight:500}
   input:focus,select:focus{border-color:var(--green)}
   input::placeholder{color:#9FB0A9}
-  .row{display:flex;gap:12px}
-  .row .field{flex:1}
-  .input-qr{display:flex;gap:8px}
-  .input-qr input{flex:1}
+  .row{display:flex;gap:12px} .row .field{flex:1}
+  .input-qr{display:flex;gap:8px} .input-qr input{flex:1}
   .qr-btn{flex:none;width:48px;font-size:20px;line-height:1;color:var(--ink);
     background:#F7FAF8;border:1.5px solid var(--line);border-radius:11px;
     cursor:pointer;display:flex;align-items:center;justify-content:center}
   .qr-btn:active{transform:scale(.95)}
-  button.go{
-    width:100%; margin-top:16px; font-family:var(--display); font-weight:600;
+  button.go{width:100%; margin-top:16px; font-family:var(--display); font-weight:600;
     font-size:16px; color:#fff; background:var(--ink); border:none;
     border-radius:12px; padding:15px; cursor:pointer; letter-spacing:.01em;
-    transition:transform .08s, background .15s;
-  }
+    transition:transform .08s, background .15s;}
   button.go:active{transform:scale(.985)}
   button.go:disabled{opacity:.55;cursor:default}
 
-  /* saved wallets */
-  .wallets-h{display:flex;align-items:center;justify-content:space-between;
-    margin:0 2px 8px}
+  .wallets-h{display:flex;align-items:center;justify-content:space-between;margin:0 2px 8px}
   .wallets-h span{font-size:12px;font-weight:700;letter-spacing:.04em;
     text-transform:uppercase;color:var(--muted)}
   .wallets-h button{font-family:var(--ui);font-size:12px;font-weight:600;
@@ -97,26 +78,20 @@
     overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .chip:active{transform:scale(.96)}
   .chip.empty{color:var(--muted);background:none;border-style:dashed;cursor:default}
-  .wallet-edit{border-top:1px solid var(--line);margin-top:10px;padding-top:12px;
-    display:none}
+  .wallet-edit{border-top:1px solid var(--line);margin-top:10px;padding-top:12px;display:none}
   .wallet-edit.open{display:block}
   .we-row{display:flex;gap:8px;margin-bottom:8px}
   .we-row input.name{flex:none;width:34%;font-family:var(--ui)}
   .we-row input.addr{flex:1;font-size:12.5px}
 
-  /* states */
   .note{font-size:13px;color:var(--muted);text-align:center;padding:22px 10px}
   .note.err{color:var(--red)}
-  .banner{font-size:13px;border-radius:11px;padding:12px 14px;margin-bottom:14px;
-    text-align:left}
+  .banner{font-size:13px;border-radius:11px;padding:12px 14px;margin-bottom:14px;text-align:left}
   .banner.demo{background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)}
 
-  /* hero verdict card */
-  .hero{
-    position:relative; overflow:hidden; border-radius:18px; padding:22px 20px 20px;
+  .hero{position:relative; overflow:hidden; border-radius:18px; padding:22px 20px 20px;
     border:1.5px solid var(--line); background:var(--card); box-shadow:var(--shadow);
-    margin-bottom:14px;
-  }
+    margin-bottom:14px;}
   .hero.ok{background:var(--green-soft);border-color:#BDE3D2}
   .hero.bad{background:var(--red-soft);border-color:#F1C7C0}
   .hero .when{font-family:var(--mono);font-size:11.5px;color:var(--muted)}
@@ -124,24 +99,17 @@
     line-height:1.05;margin:8px 0 2px;word-break:break-all}
   .amount .sym{font-size:18px;font-weight:500;color:var(--muted);margin-left:6px}
   .hero.ok .amount{color:var(--green)} .hero.bad .amount{color:var(--red)}
-  .stamp{
-    position:absolute; top:16px; right:-6px; font-family:var(--display);
+  .stamp{position:absolute; top:16px; right:-6px; font-family:var(--display);
     font-weight:700; font-size:15px; letter-spacing:.14em; text-transform:uppercase;
     padding:6px 12px; border:2.5px solid currentColor; border-radius:7px;
-    transform:rotate(7deg); opacity:.9;
-  }
+    transform:rotate(7deg); opacity:.9;}
   .hero.ok .stamp{color:var(--green)} .hero.bad .stamp{color:var(--red)}
   .reasons{margin-top:14px;display:flex;flex-direction:column;gap:7px}
   .reason{font-size:13.5px;font-weight:500;display:flex;gap:8px;align-items:flex-start}
-  .reason .dot{flex:none;margin-top:6px;width:6px;height:6px;border-radius:50%;
-    background:var(--red)}
+  .reason .dot{flex:none;margin-top:6px;width:6px;height:6px;border-radius:50%;background:var(--red)}
   .hero.ok .reason .dot{background:var(--green)}
-
-  /* meta rows */
-  .meta{border-top:1px solid rgba(14,42,34,.1);margin-top:16px;padding-top:12px;
-    display:grid;gap:9px}
-  .kv{display:grid;grid-template-columns:70px 1fr auto;gap:8px;align-items:center;
-    font-size:12.5px}
+  .meta{border-top:1px solid rgba(14,42,34,.1);margin-top:16px;padding-top:12px;display:grid;gap:9px}
+  .kv{display:grid;grid-template-columns:80px 1fr auto;gap:8px;align-items:center;font-size:12.5px}
   .kv .k{color:var(--muted);font-weight:600}
   .kv .v{font-family:var(--mono);font-size:12px;word-break:break-all}
   .kv .copy{flex:none;font-family:var(--ui);font-size:11px;font-weight:600;
@@ -149,7 +117,6 @@
   a.txlink{font-family:var(--mono);font-size:12px;color:var(--green);
     text-decoration:none;border-bottom:1px solid currentColor}
 
-  /* secondary list */
   .more-h{font-size:12px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
     color:var(--muted);margin:20px 4px 10px}
   .item{display:flex;align-items:center;gap:12px;background:var(--card);
@@ -158,11 +125,9 @@
     letter-spacing:.08em;text-transform:uppercase;padding:4px 8px;border-radius:6px}
   .tag.ok{color:var(--green);background:var(--green-soft)}
   .tag.bad{color:var(--red);background:var(--red-soft)}
-  .item .amt{font-family:var(--mono);font-weight:600;font-size:15px;flex:1;
-    word-break:break-all}
+  .item .amt{font-family:var(--mono);font-weight:600;font-size:15px;flex:1;word-break:break-all}
   .item .t{font-family:var(--mono);font-size:11px;color:var(--muted);flex:none}
 
-  /* calculator */
   .seg{display:flex;gap:6px;margin-bottom:14px}
   .seg button{flex:1;font-family:var(--display);font-weight:600;font-size:13.5px;
     color:var(--muted);background:#F7FAF8;border:1.5px solid var(--line);
@@ -174,15 +139,13 @@
   .calc-out .big{font-family:var(--mono);font-weight:600;font-size:34px;
     color:var(--green);letter-spacing:-.02em;margin:4px 0 2px;word-break:break-all}
   .calc-out .brk{font-family:var(--mono);font-size:12.5px;color:var(--ink);
-    border-top:1px solid rgba(14,42,34,.1);margin-top:12px;padding-top:10px;
-    display:grid;gap:5px}
+    border-top:1px solid rgba(14,42,34,.1);margin-top:12px;padding-top:10px;display:grid;gap:5px}
   .calc-out .brk .r{display:flex;justify-content:space-between;gap:10px}
   .calc-out .brk .r span:last-child{font-weight:600}
   .hint{font-size:12px;color:var(--muted);margin:8px 2px 0;line-height:1.4}
   .prefill{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--green);
     background:none;border:none;cursor:pointer;padding:0;margin:6px 2px 0}
 
-  /* radar */
   textarea{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);
     background:#F7FAF8;border:1.5px solid var(--line);border-radius:11px;
     padding:12px;outline:none;min-height:110px;resize:vertical;line-height:1.5}
@@ -212,10 +175,8 @@
     border-radius:10px;opacity:0;pointer-events:none;transition:.2s;z-index:9}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  /* QR scanner overlay */
   .scan{position:fixed;inset:0;background:rgba(14,42,34,.94);z-index:20;
-    display:none;flex-direction:column;align-items:center;justify-content:center;
-    padding:24px;gap:16px}
+    display:none;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:16px}
   .scan.open{display:flex}
   .scan video{width:100%;max-width:340px;aspect-ratio:1;object-fit:cover;
     border-radius:16px;background:#000;border:2px solid var(--green)}
@@ -233,200 +194,193 @@
 <div class="wrap">
   <header>
     <span class="eyebrow">TRC-20</span>
-    <h1>Касса USDT</h1>
+    <h1 data-i18n="app_title">USDT Cashier</h1>
+    <button class="lang" id="langBtn" type="button">RU</button>
   </header>
 
   <nav class="tabs" role="tablist">
-    <button class="tab" role="tab" data-tab="arrival" aria-selected="true">Приход</button>
-    <button class="tab" role="tab" data-tab="tx" aria-selected="false">Операция</button>
-    <button class="tab" role="tab" data-tab="taint" aria-selected="false">Грязность</button>
-    <button class="tab" role="tab" data-tab="calc" aria-selected="false">Калькулятор</button>
-    <button class="tab" role="tab" data-tab="radar" aria-selected="false">Радар</button>
+    <button class="tab" role="tab" data-tab="arrival" aria-selected="true" data-i18n="tab_arrival">Incoming</button>
+    <button class="tab" role="tab" data-tab="tx" aria-selected="false" data-i18n="tab_tx">Transaction</button>
+    <button class="tab" role="tab" data-tab="taint" aria-selected="false" data-i18n="tab_taint">Blacklist</button>
+    <button class="tab" role="tab" data-tab="calc" aria-selected="false" data-i18n="tab_calc">Calculator</button>
+    <button class="tab" role="tab" data-tab="radar" aria-selected="false" data-i18n="tab_radar">Radar</button>
   </nav>
 
-  <!-- ── Приход ─────────────────────────────────────────── -->
+  <!-- Incoming -->
   <section class="pane active" id="pane-arrival">
     <div class="panel">
       <div class="wallets-h">
-        <span>Мои кошельки</span>
-        <button id="wEditToggle" type="button">✎ изменить</button>
+        <span data-i18n="my_wallets">My wallets</span>
+        <button id="wEditToggle" type="button" data-i18n="edit">edit</button>
       </div>
       <div class="chips" id="chips-arrival"></div>
       <div class="wallet-edit" id="walletEdit"></div>
 
       <div class="field" style="margin-top:14px">
-        <label for="addr">Адрес получателя (или впиши разово)</label>
+        <label for="addr" data-i18n="addr_label">Recipient address (or enter once)</label>
         <div class="input-qr">
           <input id="addr" inputmode="latin" autocapitalize="off" autocorrect="off"
                  spellcheck="false" placeholder="T…">
-          <button class="qr-btn" type="button" id="qrAddr" title="Сканировать QR">▣</button>
+          <button class="qr-btn" type="button" id="qrAddr" title="QR">▣</button>
         </div>
       </div>
       <div class="row">
         <div class="field">
-          <label for="expect">Ждём сумму (необязательно)</label>
-          <input id="expect" inputmode="decimal" placeholder="напр. 23219">
+          <label for="expect" data-i18n="expect_label">Expected amount (optional)</label>
+          <input id="expect" inputmode="decimal" data-ph="expect_ph" placeholder="e.g. 23219">
         </div>
         <div class="field" style="max-width:108px">
-          <label for="limit">Сколько</label>
+          <label for="limit" data-i18n="count_label">How many</label>
           <input id="limit" inputmode="numeric" value="5">
         </div>
       </div>
-      <button class="go" id="goArrival">Проверить приход</button>
+      <button class="go" id="goArrival" data-i18n="check_arrival">Check incoming</button>
     </div>
     <div id="outArrival"></div>
   </section>
 
-  <!-- ── Операция (по хэшу/ссылке) ──────────────────────── -->
+  <!-- Transaction -->
   <section class="pane" id="pane-tx">
     <div class="panel">
       <div class="field">
-        <label for="txid">Хэш транзакции или ссылка Tronscan</label>
+        <label for="txid" data-i18n="tx_label">Transaction hash or Tronscan link</label>
         <div class="input-qr">
           <input id="txid" inputmode="latin" autocapitalize="off" autocorrect="off"
-                 spellcheck="false" placeholder="64 символа или tronscan.org/#/transaction/…">
-          <button class="qr-btn" type="button" id="qrTx" title="Сканировать QR">▣</button>
+                 spellcheck="false" data-ph="tx_ph" placeholder="64 chars or tronscan.org/#/transaction/…">
+          <button class="qr-btn" type="button" id="qrTx" title="QR">▣</button>
         </div>
       </div>
       <div class="field">
-        <label for="txExpect">Ждём сумму (необязательно)</label>
-        <input id="txExpect" inputmode="decimal" placeholder="напр. 23219">
+        <label for="txExpect" data-i18n="expect_label">Expected amount (optional)</label>
+        <input id="txExpect" inputmode="decimal" data-ph="expect_ph" placeholder="e.g. 23219">
       </div>
-      <p class="hint">Если впишешь свой адрес в «Приход», проверю заодно, что перевод
-        пришёл именно на него.</p>
-      <button class="go" id="goTx">Проверить операцию</button>
+      <p class="hint" data-i18n="tx_hint">If you enter your address in “Incoming”, I'll also verify the transfer arrived there.</p>
+      <button class="go" id="goTx" data-i18n="check_tx">Check transaction</button>
     </div>
     <div id="outTx"></div>
   </section>
 
-  <!-- ── Грязность (чёрный список) ──────────────────────── -->
+  <!-- Blacklist -->
   <section class="pane" id="pane-taint">
     <div class="panel">
       <div class="chips" id="chips-taint"></div>
       <div class="field" style="margin-top:6px">
-        <label for="taintAddr">Адрес для проверки</label>
+        <label for="taintAddr" data-i18n="taint_addr_label">Address to check</label>
         <div class="input-qr">
           <input id="taintAddr" inputmode="latin" autocapitalize="off" autocorrect="off"
                  spellcheck="false" placeholder="T…">
-          <button class="qr-btn" type="button" id="qrTaint" title="Сканировать QR">▣</button>
+          <button class="qr-btn" type="button" id="qrTaint" title="QR">▣</button>
         </div>
       </div>
-      <p class="hint">Проверяю по чёрному списку Tether прямо в сети (isBlackListed).
-        Ловит адреса, которые Tether заморозил. Это не полный AML-анализ происхождения
-        монет — место под платный скоринг оставлено на потом.</p>
-      <button class="go" id="goTaint">Проверить адрес</button>
+      <p class="hint" data-i18n="taint_hint">I check against Tether's on-chain blacklist (isBlackListed). It catches addresses Tether froze. This isn't a full AML analysis of coin origin — a paid scoring slot is left for later.</p>
+      <button class="go" id="goTaint" data-i18n="check_taint">Check address</button>
     </div>
     <div id="outTaint"></div>
   </section>
 
-  <!-- ── Калькулятор ────────────────────────────────────── -->
+  <!-- Calculator -->
   <section class="pane" id="pane-calc">
     <div class="panel">
       <div class="seg" id="calcDir">
-        <button type="button" data-dir="u2c" aria-pressed="true">USDT → наличные</button>
-        <button type="button" data-dir="c2u" aria-pressed="false">Наличные → USDT</button>
+        <button type="button" data-dir="u2c" aria-pressed="true" data-i18n="calc_dir_u2c">USDT → cash</button>
+        <button type="button" data-dir="c2u" aria-pressed="false" data-i18n="calc_dir_c2u">Cash → USDT</button>
       </div>
       <div class="field">
-        <label id="calcAmtLbl" for="calcAmt">Получено USDT</label>
+        <label id="calcAmtLbl" for="calcAmt">USDT received</label>
         <input id="calcAmt" inputmode="decimal" placeholder="0">
-        <button class="prefill" type="button" id="calcPrefill" hidden>↳ подставить проверенную сумму</button>
+        <button class="prefill" type="button" id="calcPrefill" hidden></button>
       </div>
       <div class="row">
         <div class="field">
-          <label for="calcRate">Курс (за 1 USDT)</label>
-          <input id="calcRate" inputmode="decimal" placeholder="напр. 95">
+          <label for="calcRate" data-i18n="calc_rate_label">Rate (per 1 USDT)</label>
+          <input id="calcRate" inputmode="decimal" placeholder="e.g. 95">
         </div>
         <div class="field" style="max-width:120px">
-          <label for="calcPct">Процент</label>
-          <input id="calcPct" inputmode="decimal" placeholder="напр. 2">
+          <label for="calcPct" data-i18n="calc_pct_label">Percent</label>
+          <input id="calcPct" inputmode="decimal" placeholder="e.g. 2">
         </div>
       </div>
       <div class="field">
-        <label for="calcMode">Как применить процент</label>
+        <label for="calcMode" data-i18n="calc_mode_label">How to apply percent</label>
         <select id="calcMode">
-          <option value="fee">Комиссия — вычесть из суммы клиента</option>
-          <option value="markup">Наценка — добавить к сумме клиента</option>
+          <option value="fee" data-i18n="calc_mode_fee">Commission — subtract % from client amount</option>
+          <option value="markup" data-i18n="calc_mode_markup">Markup — add % to client amount</option>
         </select>
       </div>
       <div class="field" style="max-width:160px">
-        <label for="calcCur">Валюта наличных</label>
-        <input id="calcCur" inputmode="latin" placeholder="₽ / $ / сум" value="₽">
+        <label for="calcCur" data-i18n="calc_cur_label">Cash currency</label>
+        <input id="calcCur" inputmode="latin" placeholder="$ / € / ₽" value="$">
       </div>
-      <button class="go" id="goCalc">Посчитать</button>
+      <button class="go" id="goCalc" data-i18n="calc_btn">Calculate</button>
       <div id="outCalc"></div>
     </div>
   </section>
 
-  <!-- ── Радар (связи конкурентов и клиентов) ───────────── -->
+  <!-- Radar -->
   <section class="pane" id="pane-radar">
     <div class="panel">
       <div class="field" style="margin-bottom:10px">
-        <label for="radarDays">За какой период</label>
+        <label for="radarDays" data-i18n="radar_period">Period</label>
         <div class="seg" id="radarPresets" style="max-width:320px">
-          <button type="button" data-d="1" aria-pressed="false">Сутки</button>
-          <button type="button" data-d="7" aria-pressed="true">7 дней</button>
-          <button type="button" data-d="30" aria-pressed="false">30 дней</button>
+          <button type="button" data-d="1" aria-pressed="false" data-i18n="preset_day">24h</button>
+          <button type="button" data-d="7" aria-pressed="true" data-i18n="preset_7">7 days</button>
+          <button type="button" data-d="30" aria-pressed="false" data-i18n="preset_30">30 days</button>
         </div>
-        <input id="radarDays" inputmode="numeric" value="7" style="max-width:140px"
-               aria-label="Период в днях">
-        <span class="hint" style="display:inline">дней</span>
+        <input id="radarDays" inputmode="numeric" value="7" style="max-width:140px" data-aria="period_days">
+        <span class="hint" style="display:inline" data-i18n="days_word">days</span>
       </div>
 
       <div class="wallets-h">
-        <span>Списки</span>
-        <button id="radarEditToggle" type="button">✎ изменить</button>
+        <span data-i18n="lists">Lists</span>
+        <button id="radarEditToggle" type="button" data-i18n="edit">edit</button>
       </div>
       <div class="wallet-edit" id="radarEdit">
         <div class="field">
-          <label>Мои кошельки — «Имя, Tадрес» (общие с вкладкой «Приход»)</label>
-          <textarea id="myText" placeholder="Касса, T...&#10;Резерв, T..."></textarea>
-          <button class="go" id="mySave" style="margin-top:8px">Сохранить мои кошельки (<b id="myCount">0</b>)</button>
+          <label data-i18n="radar_my_label">My wallets — “Name, Taddress” (shared with Incoming)</label>
+          <textarea id="myText" data-ph="radar_my_ph" placeholder="Cashbox, T...&#10;Reserve, T..."></textarea>
+          <button class="go" id="mySave" style="margin-top:8px"></button>
         </div>
         <div class="field" style="margin-top:14px">
-          <label>Конкуренты — «Имя, Tадрес» по строке</label>
-          <textarea id="compText" placeholder="Обменник №1, T...&#10;T..."></textarea>
-          <button class="go" id="compSave" style="margin-top:8px">Сохранить конкурентов (<b id="compCount">0</b>)</button>
+          <label data-i18n="comp_label">Competitors — “Name, Taddress” per line</label>
+          <textarea id="compText" data-ph="comp_ph" placeholder="Exchange #1, T...&#10;T..."></textarea>
+          <button class="go" id="compSave" style="margin-top:8px"></button>
         </div>
         <div class="field" style="margin-top:14px">
-          <label>Клиенты — «Имя, Tадрес» (можно списком)</label>
-          <textarea id="clientText" placeholder="Иван, T...&#10;Пётр, T..."></textarea>
-          <button class="go" id="clientSave" style="margin-top:8px">Сохранить клиентов (<b id="clientCount">0</b>)</button>
+          <label data-i18n="client_label">Clients — “Name, Taddress” (list ok)</label>
+          <textarea id="clientText" data-ph="client_ph" placeholder="John, T...&#10;Peter, T..."></textarea>
+          <button class="go" id="clientSave" style="margin-top:8px"></button>
         </div>
+        <button class="go" id="radarShare" style="margin-top:12px;background:var(--green)"></button>
+        <p class="hint" data-i18n="share_base_hint">“Share base” packs your wallets, competitors and clients into one link — opening it gives the whole base to your partner.</p>
       </div>
 
-      <input id="radarFilter" placeholder="Поиск по имени или адресу" autocapitalize="off"
-             autocorrect="off" spellcheck="false" style="margin-top:4px">
+      <input id="radarFilter" data-ph="search_ph" placeholder="Search by name or address"
+             autocapitalize="off" autocorrect="off" spellcheck="false" style="margin-top:4px">
 
-      <div class="more-h" style="margin:16px 4px 8px">Мои кошельки</div>
+      <div class="more-h" style="margin:16px 4px 8px" data-i18n="sec_my">My wallets</div>
       <div id="myList"></div>
-      <div class="more-h" style="margin:18px 4px 8px">Конкуренты</div>
+      <div class="more-h" style="margin:18px 4px 8px" data-i18n="sec_comp">Competitors</div>
       <div id="compList"></div>
-      <div class="more-h" style="margin:18px 4px 8px">Клиенты</div>
+      <div class="more-h" style="margin:18px 4px 8px" data-i18n="sec_clients">Clients</div>
       <div id="clientList"></div>
 
-      <button class="go" id="goRadar" style="margin-top:16px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)">Проверить всех конкурентов сразу</button>
-      <p class="hint">Нажми на любое имя — покажу его связи: клиента проверю на работу с
-        конкурентами, конкурента — на связи с твоими клиентами. Только USDT, имена из базы.</p>
+      <button class="go" id="goRadar" style="margin-top:16px;background:var(--card);color:var(--ink);border:1.5px solid var(--line)" data-i18n="scan_all">Check all competitors at once</button>
+      <p class="hint" data-i18n="radar_hint">Tap a name — I'll show its links: I check a client for working with competitors, a competitor for links with your clients. USDT only, names from your base.</p>
     </div>
     <div id="outRadar"></div>
   </section>
 
-  <footer>
-    «Подлинно» = это настоящий USDT (контракт Tether) и он пришёл на твой адрес.
-    Это не проверка на заморозку или «грязные» монеты и не гарантия необратимости —
-    для крупных сумм всё равно открой кошелёк и убедись, что вырос расходуемый баланс.
-  </footer>
+  <footer data-i18n="footer">“Genuine” = this is real USDT (the Tether contract) and it arrived at your address. This isn't a check for freezing or “dirty” coins, nor a guarantee of finality — for large sums, still open your wallet and confirm the spendable balance grew.</footer>
 </div>
 
-<div class="toast" id="toast">Скопировано</div>
+<div class="toast" id="toast"></div>
 
-<!-- QR scanner -->
 <div class="scan" id="scan">
   <video id="scanVideo" playsinline muted></video>
-  <p id="scanMsg">Наведи камеру на QR-код</p>
+  <p id="scanMsg"></p>
   <div class="acts">
-    <button type="button" class="prim" id="scanPick">📷 Загрузить картинку</button>
-    <button type="button" id="scanClose">Закрыть</button>
+    <button type="button" class="prim" id="scanPick" data-i18n="scan_pick">📷 Upload image</button>
+    <button type="button" id="scanClose" data-i18n="scan_close">Close</button>
   </div>
   <input type="file" id="scanFile" accept="image/*" hidden>
 </div>
@@ -434,39 +388,268 @@
 <script>
 "use strict";
 
-/* ── Настройки ───────────────────────────────────────────────
-   Адрес можно вписать один раз в «Мои кошельки» (хранится в браузере),
-   либо открыть страницу со ссылкой  …/usdt-check.html#addr=Txxxx
-   API-ключ TronGrid не нужен; если упрёшься в лимит — впиши бесплатный ключ. */
+/* ── Settings ───────────────────────────────────────────────
+   Enter your address once in “My wallets” (kept in the browser),
+   or open the page with a link  …/usdt-check.html#addr=Txxxx
+   A TronGrid API key isn't required; add a free key if you hit limits. */
 const REAL_USDT       = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
-const DEFAULT_ADDRESS = "";          // ← твой адрес сюда (необязательно)
-const TRONGRID_KEY    = "";          // ← необязательно
-
-/* «Вшитые» кошельки. Заполни, если хочешь послать партнёру готовую копию файла —
-   он увидит их сразу, без ручного ввода. Пример:
-     const PRESET_WALLETS = [{name:"Основной", addr:"T..."},{name:"Резерв", addr:"T..."}];
-   ВНИМАНИЕ: если файл с адресами лежит на публичном GitHub Pages — адреса видны всем.
-   Альтернатива без правки кода — кнопка «🔗 Ссылка для партнёра» в блоке кошельков. */
-const PRESET_WALLETS = [];
+const DEFAULT_ADDRESS = "";          // ← your address here (optional)
+const TRONGRID_KEY    = "";          // ← optional
+const PRESET_WALLETS  = [];          // ← wallets baked into the file (optional)
 /* ───────────────────────────────────────────────────────────── */
 
-const USDT_LOOKALIKE = ["USDT","USDТ","USDT.","USDT ","ＵＳＤＴ"]; // вкл. юникод-двойников
-const DEMO_RECIPIENT = "TJZ7d9kQm4Xy2bVcHnP8sRfWqLtUeAoG5x"; // фиктивный адрес для демо-режима
-const WALLET_KEY     = "usdt-check.wallets";
-const COMP_KEY       = "usdt-check.competitors";
-const CLIENT_KEY     = "usdt-check.clients";
-const N_SLOTS        = 5;
+const USDT_LOOKALIKE = ["USDT","USDТ","USDT.","USDT ","ＵＳＤＴ"];
+const DEMO_RECIPIENT = "TJZ7d9kQm4Xy2bVcHnP8sRfWqLtUeAoG5x";
+const WALLET_KEY = "usdt-check.wallets";
+const COMP_KEY   = "usdt-check.competitors";
+const CLIENT_KEY = "usdt-check.clients";
+const LANG_KEY   = "usdt-check.lang";
+const N_SLOTS    = 5;
 
 const $ = (id) => document.getElementById(id);
 const ADDR_RE = /^T[1-9A-HJ-NP-Za-km-z]{33}$/;
 const TXID_RE = /[0-9a-fA-F]{64}/;
 
-const nf  = new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:6});
-const nf2 = new Intl.NumberFormat("ru-RU",{minimumFractionDigits:2,maximumFractionDigits:2});
+/* ── i18n ─────────────────────────────────────────────────── */
+let LANG = "en";
+try{ const s=localStorage.getItem(LANG_KEY); if(s==="en"||s==="ru") LANG=s; }catch(e){}
 
-let lastAmount = null; // последняя проверенная сумма прихода — для калькулятора
+const T = {
+  en:{
+    app_title:"USDT Cashier",
+    tab_arrival:"Incoming", tab_tx:"Transaction", tab_taint:"Blacklist", tab_calc:"Calculator", tab_radar:"Radar",
+    my_wallets:"My wallets", edit:"✎ edit",
+    chips_empty:"No wallets set — tap “✎ edit”",
+    addr_label:"Recipient address (or enter once)",
+    expect_label:"Expected amount (optional)", expect_ph:"e.g. 23219",
+    count_label:"How many", check_arrival:"Check incoming",
+    wallet_name:"Name", wallet_addr_ph:"T… address",
+    save_wallets:"Save wallets", partner_link:"🔗 Partner link (wallets)",
+    partner_hint:"“Partner link” packs your wallets into a link — opening it gives them to your partner on their device without manual entry.",
+    arrival_no_tx:"No incoming transfers to this address yet.",
+    bad_addr:"This doesn't look like a TRON address. It starts with “T” and is 34 characters.",
+    requesting:"Requesting latest transfers…", checking:"Checking…",
+    net_err:"Couldn't reach the TRON network. Check your connection and try again.",
+    bad_addr_read:"Couldn't read the address. Make sure it's copied in full.",
+    earlier:"Earlier", verdict_ok:"Genuine", verdict_bad:"Caution",
+    tag_usdt:"USDT", tag_check:"check",
+    k_from:"From", k_contract:"Contract", k_transaction:"Transaction", k_address:"Address", copy:"copy",
+    r_fake:"Fake: the symbol says USDT but the contract is foreign — not real Tether",
+    r_other:(s)=>`This isn't USDT, it's a foreign token “${s}”`,
+    r_wrong_recipient:"Recipient doesn't match your address",
+    r_amount:(a,e)=>`Amount ${a} doesn't match the expected ${e}`,
+    r_ok:"Real USDT, arrived at your address",
+    demo_banner:"🧪 Demo mode: data is fake, no network requests. Remove “#demo=…” from the link for a real check.",
+    tx_label:"Transaction hash or Tronscan link",
+    tx_ph:"64 chars or tronscan.org/#/transaction/…",
+    tx_hint:"If you enter your address in “Incoming”, I'll also verify the transfer arrived there.",
+    check_tx:"Check transaction",
+    tx_no_hash:"Couldn't find a transaction hash. Paste a 64-char hash or a Tronscan link.",
+    tx_requesting:"Requesting the transaction…",
+    tx_no_transfer:"This transaction has no TRC-20 token transfer (or it isn't confirmed yet).",
+    tx_no_addr_banner:"ℹ️ Recipient address not set — checked only the contract and amount. Enter your address in “Incoming” to also verify the recipient.",
+    taint_addr_label:"Address to check",
+    taint_hint:"I check against Tether's on-chain blacklist (isBlackListed). It catches addresses Tether froze. This isn't a full AML analysis of coin origin — a paid scoring slot is left for later.",
+    check_taint:"Check address",
+    taint_not_tron:"This doesn't look like a TRON address.",
+    taint_parse_err:"Couldn't parse the address.",
+    taint_asking:"Asking the Tether contract…",
+    taint_listed:"Listed", taint_clean:"Clean", taint_frozen:"Frozen", taint_not_frozen:"Not frozen",
+    taint_reason_listed:"Address is on Tether's blacklist (frozen). Don't accept USDT from it.",
+    taint_reason_clean:"Address is not on Tether's blacklist at the time of the check.",
+    taint_footer:"Blacklist check only. Doesn't show coin origin and isn't a substitute for full AML scoring.",
+    calc_dir_u2c:"USDT → cash", calc_dir_c2u:"Cash → USDT",
+    calc_amt_u2c:"USDT received", calc_amt_c2u:"Cash received",
+    calc_rate_label:"Rate (per 1 USDT)", calc_pct_label:"Percent",
+    calc_mode_label:"How to apply percent",
+    calc_mode_fee:"Commission — subtract % from client amount",
+    calc_mode_markup:"Markup — add % to client amount",
+    calc_cur_label:"Cash currency", calc_btn:"Calculate",
+    calc_prefill:(a)=>`↳ use verified amount: ${a} USDT`,
+    calc_err:"Enter amount and rate (greater than zero).",
+    calc_out_label:"To give the client",
+    calc_fee_line:(p)=>`Commission ${p}%`, calc_markup_line:(p)=>`Markup ${p}%`,
+    radar_period:"Period", preset_day:"24h", preset_7:"7 days", preset_30:"30 days", days_word:"days",
+    lists:"Lists",
+    radar_my_label:"My wallets — “Name, Taddress” (shared with Incoming)", radar_my_ph:"Cashbox, T...\nReserve, T...",
+    comp_label:"Competitors — “Name, Taddress” per line", comp_ph:"Exchange #1, T...\nT...",
+    client_label:"Clients — “Name, Taddress” (list ok)", client_ph:"John, T...\nPeter, T...",
+    save_my:"Save my wallets", save_comp:"Save competitors", save_clients:"Save clients",
+    share_base:"🔗 Share base (wallets + competitors + clients)",
+    share_base_hint:"“Share base” packs your wallets, competitors and clients into one link — opening it gives the whole base to your partner.",
+    search_ph:"Search by name or address", period_days:"Period in days",
+    sec_my:"My wallets", sec_comp:"Competitors", sec_clients:"Clients",
+    scan_all:"Check all competitors at once",
+    radar_hint:"Tap a name — I'll show its links: I check a client for working with competitors, a competitor for links with your clients. USDT only, names from your base.",
+    list_empty:"Empty — tap “✎ edit” to add.", nothing_found:"Nothing found.", links_word:"links ›",
+    saved:(n)=>`Saved: ${n}`,
+    scanning_one:(t,d)=>`Looking at links: ${t} for ${d}d…`,
+    scanning_all:(i,n,d)=>`Scanning competitors: ${i} / ${n} (for ${d}d)…`,
+    addr_invalid:"Invalid address.",
+    from_cache:"From cache · ", data_at:(c)=>`data as of ${c}`, refresh:"↻ refresh",
+    truncated:"More transfers in the period than fit — not the full history (reduce the period or set TRONGRID_KEY).",
+    dead_n:(d)=>`💤 Wallet inactive for ${d} days — possibly dead. Consider removing from the base.`,
+    dead_none:"💤 Wallet has no USDT operations at all — possibly dead. Consider removing from the base.",
+    view_general:"All links", view_me:"With me",
+    report_title:(n,d)=>`Links: ${n} · for ${d}d`,
+    sec_clients_alarm:"⚠️ Links with your clients", sec_comp_alarm:"⚠️ Works with competitors",
+    sec_other_comp:"With other competitors", sec_other_clients:"With other clients", sec_with_my:"With your wallets",
+    me_clients:"Your clients", me_comp:"Competitors", me_between:"Between your wallets",
+    no_links:(d)=>`No links with your base for ${d}d.`,
+    me_no_ops:(d)=>`No operations with your wallets for ${d}d.`,
+    saldo_title:(n)=>`Balance with you · ${n} ops`,
+    turnover:(v)=>`Turnover: ${v} USDT`,
+    received_from:"Received from them", sent_to:"Sent to them",
+    saldo_word:"Balance", in_my_favor:"in my favor", in_their_favor:"in their favor",
+    radar_kc_found:(n)=>`⚠️ Client↔competitor links: ${n}. Looks like someone works around you.`,
+    radar_kc_none:"No client↔competitor links found.",
+    radar_scanned:(n,d)=>`Scanned competitors: ${n} for ${d}d. `,
+    radar_truncnote:"Some addresses have more transfers than fit — not the full history (reduce the period or set TRONGRID_KEY). ",
+    radar_errnote:(e)=>`Couldn't query: ${e} (possibly a TronGrid limit — add a free key or retry later).`,
+    radar_kc_header:"Clients gone to a competitor", radar_cc_header:"Competitors among themselves",
+    radar_no_cross:"No overlaps in the viewed history. Increase the period or add addresses.",
+    need_competitor:"Add at least one competitor and save the list.",
+    word_client:"Client", word_comp:"Competitor", word_me:"Me",
+    copied:"Copied", wallets_saved:"Wallets saved", base_shared:"Base link copied", partner_copied:"Partner link copied",
+    nothing_to_share:"Add at least one wallet first", nothing_base:"Your base is empty",
+    wallet_bad:(i)=>`Wallet ${i}: address doesn't look like TRON`,
+    imported_wallets:"Partner wallets loaded", imported_base:"Partner base loaded",
+    scan_msg_default:"Point the camera at a QR code",
+    scan_no_support:"This browser can't read QR codes. Open in Chrome or paste manually.",
+    scan_aiming:"Aiming the camera… if it didn't open, tap “Upload image”.",
+    scan_cam_fail:"Camera unavailable (common on file://). Tap “Upload image”.",
+    scan_qr_not_found:"QR not recognized in the image. Try another photo.",
+    scan_img_fail:"Couldn't read the image.",
+    scan_pick:"📷 Upload image", scan_close:"Close",
+    qr_no_addr:"No TRON address in the QR", qr_no_hash:"No transaction hash in the QR",
+    footer:"“Genuine” = this is real USDT (the Tether contract) and it arrived at your address. This isn't a check for freezing or “dirty” coins, nor a guarantee of finality — for large sums, still open your wallet and confirm the spendable balance grew.",
+  },
+  ru:{
+    app_title:"Касса USDT",
+    tab_arrival:"Приход", tab_tx:"Операция", tab_taint:"Грязность", tab_calc:"Калькулятор", tab_radar:"Радар",
+    my_wallets:"Мои кошельки", edit:"✎ изменить",
+    chips_empty:"Кошельки не заданы — нажми «✎ изменить»",
+    addr_label:"Адрес получателя (или впиши разово)",
+    expect_label:"Ждём сумму (необязательно)", expect_ph:"напр. 23219",
+    count_label:"Сколько", check_arrival:"Проверить приход",
+    wallet_name:"Имя", wallet_addr_ph:"T… адрес",
+    save_wallets:"Сохранить кошельки", partner_link:"🔗 Ссылка для партнёра (кошельки)",
+    partner_hint:"«Ссылка для партнёра» упакует кошельки в ссылку — открыв её, партнёр получит их на своём устройстве без ручного ввода.",
+    arrival_no_tx:"Входящих переводов на этот адрес пока нет.",
+    bad_addr:"Это не похоже на адрес TRON. Адрес начинается с «T» и состоит из 34 символов.",
+    requesting:"Запрашиваю последние переводы…", checking:"Проверяю…",
+    net_err:"Не удалось связаться с сетью TRON. Проверь интернет и попробуй ещё раз.",
+    bad_addr_read:"Не удалось прочитать адрес. Проверь, что он скопирован полностью.",
+    earlier:"Ранее", verdict_ok:"Подлинно", verdict_bad:"Внимание",
+    tag_usdt:"USDT", tag_check:"проверь",
+    k_from:"От", k_contract:"Контракт", k_transaction:"Транзакция", k_address:"Адрес", copy:"копировать",
+    r_fake:"Подделка: символ USDT, но контракт чужой — это не настоящий Tether",
+    r_other:(s)=>`Это не USDT, а посторонний токен «${s}»`,
+    r_wrong_recipient:"Получатель не совпал с твоим адресом",
+    r_amount:(a,e)=>`Сумма ${a} не совпала с ожидаемой ${e}`,
+    r_ok:"Настоящий USDT, пришёл на твой адрес",
+    demo_banner:"🧪 Демо-режим: данные ненастоящие, сеть не запрашивается. Убери «#demo=…» из ссылки для реальной проверки.",
+    tx_label:"Хэш транзакции или ссылка Tronscan",
+    tx_ph:"64 символа или tronscan.org/#/transaction/…",
+    tx_hint:"Если впишешь свой адрес в «Приход», проверю заодно, что перевод пришёл именно на него.",
+    check_tx:"Проверить операцию",
+    tx_no_hash:"Не нашёл хэш транзакции. Вставь 64-символьный хэш или ссылку Tronscan.",
+    tx_requesting:"Запрашиваю транзакцию…",
+    tx_no_transfer:"В этой транзакции нет перевода токена TRC-20 (или она ещё не подтверждена).",
+    tx_no_addr_banner:"ℹ️ Адрес-получатель не задан — проверил только контракт и сумму. Впиши свой адрес во вкладке «Приход», чтобы заодно сверить получателя.",
+    taint_addr_label:"Адрес для проверки",
+    taint_hint:"Проверяю по чёрному списку Tether прямо в сети (isBlackListed). Ловит адреса, которые Tether заморозил. Это не полный AML-анализ происхождения монет — место под платный скоринг оставлено на потом.",
+    check_taint:"Проверить адрес",
+    taint_not_tron:"Это не похоже на адрес TRON.",
+    taint_parse_err:"Не удалось разобрать адрес.",
+    taint_asking:"Спрашиваю контракт Tether…",
+    taint_listed:"В списке", taint_clean:"Чисто", taint_frozen:"Заморожен", taint_not_frozen:"Не заморожен",
+    taint_reason_listed:"Адрес в чёрном списке Tether (заморожен). Не принимай с него USDT.",
+    taint_reason_clean:"Адрес не в чёрном списке Tether на момент проверки.",
+    taint_footer:"Проверка только по чёрному списку Tether. Не показывает происхождение монет и не заменяет полный AML-скоринг.",
+    calc_dir_u2c:"USDT → наличные", calc_dir_c2u:"Наличные → USDT",
+    calc_amt_u2c:"Получено USDT", calc_amt_c2u:"Получено наличных",
+    calc_rate_label:"Курс (за 1 USDT)", calc_pct_label:"Процент",
+    calc_mode_label:"Как применить процент",
+    calc_mode_fee:"Комиссия — вычесть % из суммы клиента",
+    calc_mode_markup:"Наценка — добавить % к сумме клиента",
+    calc_cur_label:"Валюта наличных", calc_btn:"Посчитать",
+    calc_prefill:(a)=>`↳ подставить проверенную сумму: ${a} USDT`,
+    calc_err:"Впиши сумму и курс (больше нуля).",
+    calc_out_label:"К выдаче клиенту",
+    calc_fee_line:(p)=>`Комиссия ${p}%`, calc_markup_line:(p)=>`Наценка ${p}%`,
+    radar_period:"За какой период", preset_day:"Сутки", preset_7:"7 дней", preset_30:"30 дней", days_word:"дней",
+    lists:"Списки",
+    radar_my_label:"Мои кошельки — «Имя, Tадрес» (общие с «Приходом»)", radar_my_ph:"Касса, T...\nРезерв, T...",
+    comp_label:"Конкуренты — «Имя, Tадрес» по строке", comp_ph:"Обменник №1, T...\nT...",
+    client_label:"Клиенты — «Имя, Tадрес» (можно списком)", client_ph:"Иван, T...\nПётр, T...",
+    save_my:"Сохранить мои кошельки", save_comp:"Сохранить конкурентов", save_clients:"Сохранить клиентов",
+    share_base:"🔗 Поделиться базой (кошельки + конкуренты + клиенты)",
+    share_base_hint:"«Поделиться базой» упакует кошельки, конкурентов и клиентов в одну ссылку — открыв её, партнёр получит всю базу.",
+    search_ph:"Поиск по имени или адресу", period_days:"Период в днях",
+    sec_my:"Мои кошельки", sec_comp:"Конкуренты", sec_clients:"Клиенты",
+    scan_all:"Проверить всех конкурентов сразу",
+    radar_hint:"Нажми на любое имя — покажу его связи: клиента проверю на работу с конкурентами, конкурента — на связи с твоими клиентами. Только USDT, имена из базы.",
+    list_empty:"Пусто — нажми «✎ изменить» и добавь.", nothing_found:"Ничего не найдено.", links_word:"связи ›",
+    saved:(n)=>`Сохранено: ${n}`,
+    scanning_one:(t,d)=>`Смотрю связи: ${t} за ${d} дн…`,
+    scanning_all:(i,n,d)=>`Сканирую конкурентов: ${i} / ${n} (за ${d} дн.)…`,
+    addr_invalid:"Адрес неверный.",
+    from_cache:"Из кеша · ", data_at:(c)=>`данные на ${c}`, refresh:"↻ обновить",
+    truncated:"Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).",
+    dead_n:(d)=>`💤 Кошелёк неактивен ${d} дн. — возможно, мёртвый. Стоит удалить из базы.`,
+    dead_none:"💤 У кошелька нет ни одной USDT-операции — возможно, мёртвый. Стоит удалить из базы.",
+    view_general:"Общие связи", view_me:"Со мной",
+    report_title:(n,d)=>`Связи: ${n} · за ${d} дн.`,
+    sec_clients_alarm:"⚠️ Связи с твоими клиентами", sec_comp_alarm:"⚠️ Работает с конкурентами",
+    sec_other_comp:"С другими конкурентами", sec_other_clients:"С другими клиентами", sec_with_my:"С твоими кошельками",
+    me_clients:"Твои клиенты", me_comp:"Конкуренты", me_between:"Между твоими кошельками",
+    no_links:(d)=>`За ${d} дн. связей с твоей базой нет.`,
+    me_no_ops:(d)=>`Операций с твоими кошельками за ${d} дн. нет.`,
+    saldo_title:(n)=>`Сальдо с тобой · ${n} операц.`,
+    turnover:(v)=>`Оборот: ${v} USDT`,
+    received_from:"Получено от него", sent_to:"Отправлено ему",
+    saldo_word:"Сальдо", in_my_favor:"в мою пользу", in_their_favor:"в его пользу",
+    radar_kc_found:(n)=>`⚠️ Связей «клиент ↔ конкурент»: ${n}. Похоже, кто-то работает в обход.`,
+    radar_kc_none:"Связей «клиент ↔ конкурент» не найдено.",
+    radar_scanned:(n,d)=>`Просканировано конкурентов: ${n} за ${d} дн. `,
+    radar_truncnote:"У части адресов переводов больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY). ",
+    radar_errnote:(e)=>`Не удалось опросить: ${e} (возможно, лимит TronGrid — впиши бесплатный ключ или повтори позже).`,
+    radar_kc_header:"Клиент ушёл к конкуренту", radar_cc_header:"Конкуренты между собой",
+    radar_no_cross:"Пересечений в просмотренной истории нет. Увеличь период или добавь адреса.",
+    need_competitor:"Добавь хотя бы одного конкурента и сохрани список.",
+    word_client:"Клиент", word_comp:"Конкурент", word_me:"Я",
+    copied:"Скопировано", wallets_saved:"Кошельки сохранены", base_shared:"Ссылка на базу скопирована", partner_copied:"Ссылка для партнёра скопирована",
+    nothing_to_share:"Сначала добавь хотя бы один кошелёк", nothing_base:"База пуста",
+    wallet_bad:(i)=>`Кошелёк ${i}: адрес не похож на TRON`,
+    imported_wallets:"Кошельки партнёра загружены", imported_base:"База партнёра загружена",
+    scan_msg_default:"Наведи камеру на QR-код",
+    scan_no_support:"Этот браузер не умеет читать QR. Открой в Chrome или вставь данные вручную.",
+    scan_aiming:"Навожу камеру… если не открылась — нажми «Загрузить картинку».",
+    scan_cam_fail:"Камера недоступна (часто так на file://). Нажми «Загрузить картинку».",
+    scan_qr_not_found:"QR на картинке не распознан. Попробуй другое фото.",
+    scan_img_fail:"Не удалось прочитать картинку.",
+    scan_pick:"📷 Загрузить картинку", scan_close:"Закрыть",
+    qr_no_addr:"В QR нет адреса TRON", qr_no_hash:"В QR нет хэша транзакции",
+    footer:"«Подлинно» = это настоящий USDT (контракт Tether) и он пришёл на твой адрес. Это не проверка на заморозку или «грязные» монеты и не гарантия необратимости — для крупных сумм всё равно открой кошелёк и убедись, что вырос расходуемый баланс.",
+  }
+};
+function t(k, ...a){
+  const d=T[LANG]||T.en;
+  let v=d[k]; if(v==null) v=T.en[k]; if(v==null) return k;
+  return typeof v==="function" ? v(...a) : v;
+}
 
-/* ── утилиты ──────────────────────────────────────────────── */
+/* числовые/датовые форматтеры зависят от языка */
+let nf, nf2;
+function buildFormatters(){
+  const loc = LANG==="en" ? "en-US" : "ru-RU";
+  nf  = new Intl.NumberFormat(loc,{minimumFractionDigits:2,maximumFractionDigits:6});
+  nf2 = new Intl.NumberFormat(loc,{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+buildFormatters();
+
+/* ── utils ────────────────────────────────────────────────── */
 function short(s, head=8, tail=6){
   if(!s) return "";
   return s.length > head+tail+1 ? s.slice(0,head)+"…"+s.slice(-tail) : s;
@@ -478,13 +661,13 @@ function toAmount(value, decimals){
   return Number.isFinite(n) ? n : null;
 }
 function fmtTime(ms){
-  const t = Number(ms);
-  if(!Number.isFinite(t)) return "?";
-  return new Date(t).toLocaleString("ru-RU",{day:"2-digit",month:"2-digit",
-    year:"numeric",hour:"2-digit",minute:"2-digit"});
+  const ts = Number(ms);
+  if(!Number.isFinite(ts)) return "?";
+  return new Date(ts).toLocaleString(LANG==="en"?"en-GB":"ru-RU",
+    {day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 }
 
-/* base58check → 20-байтовый hex-адрес (для ABI-параметра isBlackListed) */
+/* base58check → 20-байтовый hex-адрес (ABI-параметр isBlackListed) */
 const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
 function base58ToBytes(s){
   let num = 0n;
@@ -496,51 +679,85 @@ function base58ToBytes(s){
 }
 function addrToAbiParam(addr){
   const b = base58ToBytes(addr);
-  if(!b || b.length < 21) return null;          // [0x41][20 байт][4 байта контр.суммы]
-  const core = b.slice(1, 21);                  // 20 байт самого адреса
+  if(!b || b.length < 21) return null;
+  const core = b.slice(1, 21);
   const hex  = core.map(x=>x.toString(16).padStart(2,"0")).join("");
-  return hex.padStart(64,"0");                  // ABI: адрес слева дополнен нулями до 32 байт
+  return hex.padStart(64,"0");
+}
+function base58Encode(bytes){
+  let num = 0n; for(const b of bytes) num = num*256n + BigInt(b);
+  let out = ""; while(num>0n){ out = B58[Number(num%58n)] + out; num/=58n; }
+  for(const b of bytes){ if(b===0) out = "1"+out; else break; }
+  return out;
+}
+async function sha256(bytes){
+  const buf = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
+  return Array.from(new Uint8Array(buf));
+}
+async function hexToTronAddr(raw){
+  if(typeof raw!=="string") return "";
+  if(ADDR_RE.test(raw)) return raw;
+  let hex = raw.toLowerCase().replace(/^0x/,"");
+  if(/^0{24}[0-9a-f]{40}$/.test(hex)) hex = hex.slice(24);
+  if(/^[0-9a-f]{40}$/.test(hex)) hex = "41"+hex;
+  if(!/^41[0-9a-f]{40}$/.test(hex)) return raw;
+  const body = hex.match(/../g).map(x=>parseInt(x,16));
+  try{ const h2 = await sha256(await sha256(body)); return base58Encode(body.concat(h2.slice(0,4))); }
+  catch(e){ return raw; }
 }
 
-/* ── сохранённые кошельки ─────────────────────────────────── */
-function loadWallets(){
-  try{
-    const raw = localStorage.getItem(WALLET_KEY);
-    if(raw){ const arr = JSON.parse(raw); if(Array.isArray(arr)) return arr.slice(0,N_SLOTS); }
-  }catch(e){}
-  return PRESET_WALLETS.slice(0,N_SLOTS);   // запасной вариант — вшитые в файл кошельки
+/* ── общие списки и кодирование ───────────────────────────── */
+function loadListLS(key){
+  try{ const r=localStorage.getItem(key); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) return a; } }catch(e){}
+  return key===WALLET_KEY ? PRESET_WALLETS.slice(0,N_SLOTS) : [];
 }
-function saveWallets(arr){
-  try{ localStorage.setItem(WALLET_KEY, JSON.stringify(arr)); }catch(e){}
+function saveListLS(key,arr){ try{ localStorage.setItem(key, JSON.stringify(arr)); }catch(e){} }
+function loadWallets(){ return loadListLS(WALLET_KEY).slice(0,N_SLOTS); }
+function saveWallets(arr){ saveListLS(WALLET_KEY, arr); }
+
+function parseListText(text){
+  const out=[], seen=new Set();
+  String(text||"").split(/\r?\n/).forEach(line=>{
+    line=line.trim(); if(!line) return;
+    const m=line.match(/T[1-9A-HJ-NP-Za-km-z]{33}/); if(!m) return;
+    const addr=m[0]; if(seen.has(addr)) return; seen.add(addr);
+    const name=(line.slice(0,m.index)+" "+line.slice(m.index+addr.length))
+      .replace(/[,;|\t]+/g," ").replace(/\s+/g," ").trim();
+    out.push({name,addr});
+  });
+  return out;
 }
-/* упаковка кошельков в ссылку для партнёра и обратно */
-function encodeWallets(arr){
-  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(arr)))); }catch(e){ return ""; }
+function listToText(arr){ return (arr||[]).map(w=>(w.name?w.name+", ":"")+w.addr).join("\n"); }
+
+function encodeB64(obj){ try{ return btoa(unescape(encodeURIComponent(JSON.stringify(obj)))); }catch(e){ return ""; } }
+function decodeB64(s){ try{ return JSON.parse(decodeURIComponent(escape(atob(s)))); }catch(e){ return null; } }
+
+function shareBase(){
+  const w=loadWallets().filter(x=>x&&ADDR_RE.test((x.addr||"").trim()));
+  const c=loadListLS(COMP_KEY).filter(x=>ADDR_RE.test((x.addr||"").trim()));
+  const k=loadListLS(CLIENT_KEY).filter(x=>ADDR_RE.test((x.addr||"").trim()));
+  if(!w.length && !c.length && !k.length){ flashToast(t("nothing_base")); return; }
+  shareLink({w,c,k}, "base_shared");
 }
-function decodeWallets(s){
-  try{ const a = JSON.parse(decodeURIComponent(escape(atob(s)))); return Array.isArray(a)?a:null; }
-  catch(e){ return null; }
+function shareWalletsOnly(){
+  const w=loadWallets().filter(x=>x&&ADDR_RE.test((x.addr||"").trim()));
+  if(!w.length){ flashToast(t("nothing_to_share")); return; }
+  shareLink({w}, "partner_copied");
 }
-function shareWalletsLink(){
-  const wallets = loadWallets().filter(w=>w && ADDR_RE.test((w.addr||"").trim()));
-  if(!wallets.length){ flashToast("Сначала добавь хотя бы один кошелёк"); return; }
+function shareLink(payload, toastKey){
   const base = (location.protocol==="file:" || location.origin==="null")
-    ? location.href.split("#")[0]
-    : location.origin + location.pathname;
-  const link = base + "#wallets=" + encodeWallets(wallets);
-  navigator.clipboard?.writeText(link)
-    .then(()=>flashToast("Ссылка для партнёра скопирована"))
-    .catch(()=>flashToast("Не удалось скопировать"));
+    ? location.href.split("#")[0] : location.origin + location.pathname;
+  const link = base + "#share=" + encodeB64(payload);
+  navigator.clipboard?.writeText(link).then(()=>flashToast(t(toastKey))).catch(()=>flashToast(t("net_err")));
 }
+
+/* ── сохранённые кошельки (вкладка «Приход») ──────────────── */
 function renderChips(){
   const wallets = loadWallets().filter(w=>w && ADDR_RE.test((w.addr||"").trim()));
   [["chips-arrival","addr"],["chips-taint","taintAddr"]].forEach(([cid,inputId])=>{
     const box = $(cid); if(!box) return;
     box.innerHTML = "";
-    if(!wallets.length){
-      box.innerHTML = `<span class="chip empty">Кошельки не заданы — нажми «✎ изменить»</span>`;
-      return;
-    }
+    if(!wallets.length){ box.innerHTML = `<span class="chip empty">${esc(t("chips_empty"))}</span>`; return; }
     wallets.forEach(w=>{
       const b = document.createElement("button");
       b.type = "button"; b.className = "chip";
@@ -558,472 +775,29 @@ function renderWalletEditor(){
   for(let i=0;i<N_SLOTS;i++){
     const w = wallets[i] || {name:"",addr:""};
     html += `<div class="we-row">
-      <input class="name" data-i="${i}" data-f="name" placeholder="Имя ${i+1}" value="${esc(w.name||"")}">
-      <input class="addr" data-i="${i}" data-f="addr" placeholder="T… адрес" value="${esc(w.addr||"")}"
+      <input class="name" data-i="${i}" data-f="name" placeholder="${esc(t("wallet_name"))} ${i+1}" value="${esc(w.name||"")}">
+      <input class="addr" data-i="${i}" data-f="addr" placeholder="${esc(t("wallet_addr_ph"))}" value="${esc(w.addr||"")}"
              autocapitalize="off" autocorrect="off" spellcheck="false">
     </div>`;
   }
-  html += `<button class="go" id="walletSave" style="margin-top:6px">Сохранить кошельки</button>`;
-  html += `<button class="go" id="walletShare" style="margin-top:8px;background:var(--green)">🔗 Ссылка для партнёра</button>`;
-  html += `<p class="hint">«Ссылка для партнёра» упакует кошельки в ссылку — открыв её,
-    партнёр получит их на своём устройстве без ручного ввода.</p>`;
+  html += `<button class="go" id="walletSave" style="margin-top:6px">${esc(t("save_wallets"))}</button>`;
+  html += `<button class="go" id="walletShare" style="margin-top:8px;background:var(--green)">${esc(t("partner_link"))}</button>`;
+  html += `<p class="hint">${esc(t("partner_hint"))}</p>`;
   box.innerHTML = html;
-  $("walletShare").addEventListener("click", shareWalletsLink);
+  $("walletShare").addEventListener("click", shareWalletsOnly);
   $("walletSave").addEventListener("click",()=>{
     const next = [];
     for(let i=0;i<N_SLOTS;i++){
       const name = box.querySelector(`input[data-i="${i}"][data-f="name"]`).value.trim();
       const addr = box.querySelector(`input[data-i="${i}"][data-f="addr"]`).value.trim();
-      if(addr){
-        if(!ADDR_RE.test(addr)){ flashToast(`Кошелёк ${i+1}: адрес не похож на TRON`); return; }
-        next.push({name,addr});
-      }
+      if(addr){ if(!ADDR_RE.test(addr)){ flashToast(t("wallet_bad", i+1)); return; } next.push({name,addr}); }
     }
-    saveWallets(next);
-    renderChips();
-    box.classList.remove("open");
-    flashToast("Кошельки сохранены");
+    saveWallets(next); renderChips(); renderRadarEditors(); renderRadarLists();
+    box.classList.remove("open"); flashToast(t("wallets_saved"));
   });
 }
 
-/* ── классификация (КРИТИЧЕСКИЙ ИНВАРИАНТ — не менять логику) ─ */
-function classify(tr, myAddr, expect){
-  const info = tr.token_info || {};
-  const contract = info.address || "";
-  const symbol   = info.symbol  || "?";
-  const amount   = toAmount(tr.value, info.decimals);
-  const to       = tr.to || "";
-  const realUSDT = contract === REAL_USDT;
-  const reasons  = [];
-
-  if(!realUSDT){
-    if(USDT_LOOKALIKE.includes((symbol||"").trim()))
-      reasons.push("Подделка: символ USDT, но контракт чужой — это не настоящий Tether");
-    else
-      reasons.push("Это не USDT, а посторонний токен «"+symbol+"»");
-  }
-  if(myAddr && to !== myAddr)
-    reasons.push("Получатель не совпал с твоим адресом");
-  if(expect != null && amount != null && Math.abs(amount - expect) > 1e-6)
-    reasons.push("Сумма "+nf.format(amount)+" не совпала с ожидаемой "+nf.format(expect));
-
-  const ok = realUSDT && reasons.length === 0;
-  if(ok) reasons.push("Настоящий USDT, пришёл на твой адрес");
-  return {ok, symbol, amount, contract, from:tr.from||"", to,
-          time:fmtTime(tr.block_timestamp), tx:tr.transaction_id||"", reasons};
-}
-
-/* HTML карточки-вердикта (общая для «Прихода» и «Операции») */
-function heroHTML(c){
-  const cls = c.ok ? "ok" : "bad";
-  const stamp = c.ok ? "Подлинно" : "Внимание";
-  const amt = c.amount != null ? nf.format(c.amount) : "?";
-  return `<div class="hero ${cls}">
-      <div class="when">${esc(c.time)}</div>
-      <span class="stamp">${stamp}</span>
-      <div class="amount">${amt}<span class="sym">${esc(c.symbol)}</span></div>
-      <div class="reasons">
-        ${c.reasons.map(r=>`<div class="reason"><span class="dot"></span><span>${esc(r)}</span></div>`).join("")}
-      </div>
-      <div class="meta">
-        <div class="kv"><span class="k">От</span><span class="v">${esc(short(c.from,10,8))}</span>
-          <button class="copy" data-c="${esc(c.from)}">копировать</button></div>
-        <div class="kv"><span class="k">Контракт</span><span class="v">${esc(short(c.contract,10,8))}</span>
-          <button class="copy" data-c="${esc(c.contract)}">копировать</button></div>
-        <div class="kv"><span class="k">Транзакция</span>
-          <a class="txlink" href="https://tronscan.org/#/transaction/${esc(c.tx)}" target="_blank" rel="noopener">${esc(short(c.tx,8,6))} ↗</a>
-          <button class="copy" data-c="${esc(c.tx)}">копировать</button></div>
-      </div>
-    </div>`;
-}
-function wireCopy(out){
-  out.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",()=>copy(b.dataset.c)));
-}
-
-/* ── вкладка «Приход» ─────────────────────────────────────── */
-function demoData(mode){
-  const me = DEMO_RECIPIENT;
-  const FAKE_CONTRACT = "TPp9rD3kSxWqVbNcMgHfLtUeAoZ7y2sJ4d";
-  const base = 1750000000000, day = 86400000;
-  const mk = (contract, symbol, units, ageDays, from, tx) => ({
-    token_info:{address:contract, symbol, decimals:6},
-    value:String(units), to:me, from,
-    block_timestamp:base - ageDays*day, transaction_id:tx
-  });
-  const f  = mk(FAKE_CONTRACT,"USDT",  23219000000, 0, "TGjYx9scamSenderQwErTyUiOpAsDfGhJ", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef");
-  const g1 = mk(REAL_USDT,    "USDT",   1500000000, 1, "TU4xK7nVbCmZpQrStUvWxYz123456789Ab", "5f3c9a2b1d8e47c6a09f12b34c56d78e9012f345a6b7c8d9e0f1a2b3c4d5e6f7");
-  const x  = mk(FAKE_CONTRACT,"Reward", 9999000000, 2, "TPr0aZ8yXwVuTsRqPnMlKjHgFdSc7654Bv", "feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface");
-  const g2 = mk(REAL_USDT,    "USDT",   8000000000, 3, "TBn7mQ2pLkJhGfDsAzXcVbNm9876543210T", "0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9");
-  return mode === "ok" ? [g1,g2,x,f] : [f,g1,x,g2];
-}
-
-async function checkArrival(){
-  const out  = $("outArrival");
-  const demo = new URLSearchParams(location.hash.slice(1)).get("demo");
-  if(demo){
-    $("addr").value = DEMO_RECIPIENT;
-    renderArrival(demoData(demo), DEMO_RECIPIENT, parseNum($("expect").value));
-    out.insertAdjacentHTML("afterbegin",
-      `<div class="banner demo">🧪 Демо-режим: данные ненастоящие, сеть не запрашивается. Убери «#demo=…» из ссылки для реальной проверки.</div>`);
-    return;
-  }
-
-  const addr   = $("addr").value.trim();
-  const expect = parseNum($("expect").value);
-  let limit = parseInt($("limit").value,10); if(!(limit>0)) limit=5; if(limit>20) limit=20;
-
-  if(!ADDR_RE.test(addr)){
-    out.innerHTML = `<p class="note err">Это не похоже на адрес TRON. Адрес начинается с «T» и состоит из 34 символов.</p>`;
-    return;
-  }
-  setBusy("goArrival","Проверяю…",true);
-  out.innerHTML = `<p class="note">Запрашиваю последние переводы…</p>`;
-  try{
-    const url = `https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=${limit}&only_to=true`;
-    const res = await fetch(url,{headers:tgHeaders()});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const data = await res.json();
-    if(!data.success) throw new Error("bad-address");
-    renderArrival(data.data || [], addr, expect);
-  }catch(e){
-    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
-  }finally{
-    setBusy("goArrival","Проверить приход",false);
-  }
-}
-
-function renderArrival(list, myAddr, expect){
-  const out = $("outArrival");
-  if(!list.length){
-    out.innerHTML = `<p class="note">Входящих переводов на этот адрес пока нет.</p>`;
-    return;
-  }
-  const first = classify(list[0], myAddr, expect); // сверка суммы — только с самым свежим
-  if(first.ok && first.amount != null){ lastAmount = first.amount; offerPrefill(); }
-
-  let html = heroHTML(first);
-  if(list.length > 1){
-    html += `<div class="more-h">Ранее</div>`;
-    for(let i=1;i<list.length;i++){
-      const r = classify(list[i], myAddr, null);
-      html += `<div class="item">
-        <span class="tag ${r.ok?"ok":"bad"}">${r.ok?"USDT":"проверь"}</span>
-        <span class="amt">${r.amount!=null?nf.format(r.amount):"?"} ${esc(r.symbol)}</span>
-        <span class="t">${esc((r.time.split(",")[0])||"")}</span>
-      </div>`;
-    }
-  }
-  out.innerHTML = html;
-  wireCopy(out);
-}
-
-/* ── вкладка «Операция» (проверка по хэшу) ────────────────── */
-async function checkTx(){
-  const out = $("outTx");
-  const raw = $("txid").value.trim();
-  const m = raw.match(TXID_RE);
-  if(!m){
-    out.innerHTML = `<p class="note err">Не нашёл хэш транзакции. Вставь 64-символьный хэш или ссылку Tronscan.</p>`;
-    return;
-  }
-  const hash = m[0].toLowerCase();
-  const expect = parseNum($("txExpect").value);
-  const myAddr = ADDR_RE.test($("addr").value.trim()) ? $("addr").value.trim() : "";
-
-  setBusy("goTx","Проверяю…",true);
-  out.innerHTML = `<p class="note">Запрашиваю транзакцию…</p>`;
-  try{
-    const url = `https://api.trongrid.io/v1/transactions/${hash}/events?only_confirmed=true`;
-    const res = await fetch(url,{headers:tgHeaders()});
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const data = await res.json();
-    const transfers = (data.data||[]).filter(e=>e.event_name==="Transfer" && e.result);
-    if(!transfers.length){
-      out.innerHTML = `<p class="note err">В этой транзакции нет перевода токена TRC-20 (или она ещё не подтверждена).</p>`;
-      return;
-    }
-    // переводов может быть несколько — берём перевод именно USDT, иначе первый
-    const ev = transfers.find(e=>e.contract_address===REAL_USDT) || transfers[0];
-    const r = ev.result;
-    // decimals=6 здесь верны ТОЛЬКО потому, что мы сверяем с конкретным контрактом
-    // REAL_USDT (у него 6). Для чужого контракта это лишь приблизительный показ суммы.
-    const to   = await hexToTronAddr(r.to);
-    const from = await hexToTronAddr(r.from);
-    const tr = {
-      token_info:{address:ev.contract_address||"", symbol:(ev.contract_address===REAL_USDT?"USDT":"?"), decimals:6},
-      value:r.value ?? r.amount ?? "0",
-      to, from,
-      block_timestamp:ev.block_timestamp,
-      transaction_id:hash
-    };
-    const c = classify(tr, myAddr, expect);
-    let html = heroHTML(c);
-    if(!myAddr) html = `<div class="banner demo">ℹ️ Адрес-получатель не задан — проверил только контракт и сумму. Впиши свой адрес во вкладке «Приход», чтобы заодно сверить получателя.</div>` + html;
-    out.innerHTML = html;
-    wireCopy(out);
-  }catch(e){
-    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
-  }finally{
-    setBusy("goTx","Проверить операцию",false);
-  }
-}
-
-/* ── вкладка «Грязность» (чёрный список Tether) ───────────── */
-async function checkTaint(){
-  const out = $("outTaint");
-  const addr = $("taintAddr").value.trim();
-  if(!ADDR_RE.test(addr)){
-    out.innerHTML = `<p class="note err">Это не похоже на адрес TRON.</p>`;
-    return;
-  }
-  const param = addrToAbiParam(addr);
-  if(!param){
-    out.innerHTML = `<p class="note err">Не удалось разобрать адрес.</p>`;
-    return;
-  }
-  setBusy("goTaint","Проверяю…",true);
-  out.innerHTML = `<p class="note">Спрашиваю контракт Tether…</p>`;
-  try{
-    const res = await fetch("https://api.trongrid.io/wallet/triggerconstantcontract",{
-      method:"POST",
-      headers:Object.assign({"Content-Type":"application/json"}, tgHeaders()),
-      body:JSON.stringify({
-        owner_address: addr,
-        contract_address: REAL_USDT,
-        function_selector: "isBlackListed(address)",
-        parameter: param,
-        visible: true
-      })
-    });
-    if(!res.ok) throw new Error("HTTP "+res.status);
-    const data = await res.json();
-    const cr = data.constant_result && data.constant_result[0];
-    if(!cr) throw new Error("no-result");
-    const blacklisted = BigInt("0x"+cr) !== 0n;
-    const cls = blacklisted ? "bad" : "ok";
-    const stamp = blacklisted ? "В списке" : "Чисто";
-    const reason = blacklisted
-      ? "Адрес в чёрном списке Tether (заморожен). Не принимай с него USDT."
-      : "Адрес не в чёрном списке Tether на момент проверки.";
-    out.innerHTML = `<div class="hero ${cls}">
-        <span class="stamp">${stamp}</span>
-        <div class="amount" style="font-size:26px">${blacklisted?"Заморожен":"Не заморожен"}</div>
-        <div class="reasons"><div class="reason"><span class="dot"></span><span>${esc(reason)}</span></div></div>
-        <div class="meta">
-          <div class="kv"><span class="k">Адрес</span><span class="v">${esc(short(addr,10,8))}</span>
-            <button class="copy" data-c="${esc(addr)}">копировать</button></div>
-        </div>
-      </div>
-      <p class="hint">Проверка только по чёрному списку Tether. Не показывает происхождение
-        монет и не заменяет полный AML-скоринг.</p>`;
-    wireCopy(out);
-  }catch(e){
-    out.innerHTML = `<p class="note err">${netMsg(e)}</p>`;
-  }finally{
-    setBusy("goTaint","Проверить адрес",false);
-  }
-}
-
-/* hex-адрес TRON (41… или с ABI-паддингом) → base58check. Асинхронно: нужен SHA-256. */
-function base58Encode(bytes){
-  let num = 0n; for(const b of bytes) num = num*256n + BigInt(b);
-  let out = ""; while(num>0n){ out = B58[Number(num%58n)] + out; num/=58n; }
-  for(const b of bytes){ if(b===0) out = "1"+out; else break; }
-  return out;
-}
-async function sha256(bytes){
-  const buf = await crypto.subtle.digest("SHA-256", new Uint8Array(bytes));
-  return Array.from(new Uint8Array(buf));
-}
-async function hexToTronAddr(raw){
-  if(typeof raw!=="string") return "";
-  if(ADDR_RE.test(raw)) return raw;                          // уже base58
-  let hex = raw.toLowerCase().replace(/^0x/,"");
-  if(/^0{24}[0-9a-f]{40}$/.test(hex)) hex = hex.slice(24);   // снять ABI-паддинг
-  if(/^[0-9a-f]{40}$/.test(hex)) hex = "41"+hex;             // добавить префикс TRON
-  if(!/^41[0-9a-f]{40}$/.test(hex)) return raw;
-  const body = hex.match(/../g).map(x=>parseInt(x,16));      // 21 байт: 0x41 + адрес
-  try{
-    const h2 = await sha256(await sha256(body));
-    return base58Encode(body.concat(h2.slice(0,4)));         // + 4 байта контрольной суммы
-  }catch(e){ return raw; }
-}
-
-/* ── вкладка «Калькулятор» ────────────────────────────────── */
-let calcDir = "u2c"; // u2c: USDT→наличные, c2u: наличные→USDT
-function setCalcDir(dir){
-  calcDir = dir;
-  document.querySelectorAll("#calcDir button").forEach(b=>
-    b.setAttribute("aria-pressed", String(b.dataset.dir===dir)));
-  $("calcAmtLbl").textContent = dir==="u2c" ? "Получено USDT" : "Получено наличных";
-  offerPrefill();
-  $("outCalc").innerHTML = "";
-}
-function offerPrefill(){
-  const btn = $("calcPrefill");
-  btn.hidden = !(calcDir==="u2c" && lastAmount!=null);
-  if(!btn.hidden) btn.textContent = `↳ подставить проверенную сумму: ${nf.format(lastAmount)} USDT`;
-}
-function calc(){
-  const out = $("outCalc");
-  const amt  = parseNum($("calcAmt").value);
-  const rate = parseNum($("calcRate").value);
-  const pct  = parseNum($("calcPct").value) || 0;
-  const mode = $("calcMode").value;            // fee | markup
-  const cur  = $("calcCur").value.trim() || "";
-  if(amt==null || amt<=0 || rate==null || rate<=0){
-    out.innerHTML = `<p class="note err">Впиши сумму и курс (больше нуля).</p>`;
-    return;
-  }
-  const k = mode==="fee" ? (1 - pct/100) : (1 + pct/100);
-  let gross, net, outLbl, outUnit, grossUnit;
-  if(calcDir==="u2c"){                          // USDT → наличные
-    gross = amt * rate; net = gross * k;
-    outLbl = "К выдаче клиенту"; outUnit = cur; grossUnit = cur;
-  }else{                                        // наличные → USDT
-    gross = amt / rate; net = gross * k;
-    outLbl = "К выдаче клиенту"; outUnit = "USDT"; grossUnit = "USDT";
-  }
-  const fmtOut = outUnit==="USDT" ? nf : nf2;
-  const pctLine = mode==="fee"
-    ? `Комиссия ${pct}%` : `Наценка ${pct}%`;
-  out.innerHTML = `<div class="calc-out">
-      <div class="lbl">${outLbl}</div>
-      <div class="big">${fmtOut.format(net)} <span style="font-size:18px">${esc(outUnit)}</span></div>
-      <div class="brk">
-        <div class="r"><span>${calcDir==="u2c"?`${nf.format(amt)} USDT × ${nf2.format(rate)}`:`${nf2.format(amt)} ${esc(cur)} ÷ ${nf2.format(rate)}`}</span><span>${(outUnit==="USDT"?nf:nf2).format(gross)} ${esc(grossUnit)}</span></div>
-        <div class="r"><span>${pctLine}</span><span>${mode==="fee"?"−":"+"}${(outUnit==="USDT"?nf:nf2).format(Math.abs(gross-net))} ${esc(grossUnit)}</span></div>
-      </div>
-    </div>`;
-}
-
-/* ── QR-сканер (камера + картинка) через BarcodeDetector ──── */
-let scanTarget = null, scanStream = null, scanRAF = null, scanDetector = null;
-function qrSupported(){ return "BarcodeDetector" in window; }
-function getDetector(){
-  if(!scanDetector) scanDetector = new BarcodeDetector({formats:["qr_code"]});
-  return scanDetector;
-}
-function openScanner(onText){
-  scanTarget = onText;
-  const sc = $("scan");
-  if(!qrSupported()){
-    $("scanMsg").textContent = "Этот браузер не умеет читать QR. Открой в Chrome или вставь данные вручную.";
-    $("scanVideo").style.display = "none";
-  }else{
-    $("scanVideo").style.display = "";
-    $("scanMsg").textContent = "Навожу камеру… если не открылась — нажми «Загрузить картинку».";
-    startCamera();
-  }
-  sc.classList.add("open");
-}
-async function startCamera(){
-  if(!qrSupported()) return;
-  try{
-    scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
-    const v = $("scanVideo"); v.srcObject = scanStream; await v.play();
-    const det = getDetector();
-    const tick = async ()=>{
-      if(!scanStream) return;
-      try{
-        const codes = await det.detect(v);
-        if(codes && codes.length){ handleScan(codes[0].rawValue); return; }
-      }catch(e){}
-      scanRAF = requestAnimationFrame(tick);
-    };
-    scanRAF = requestAnimationFrame(tick);
-  }catch(e){
-    $("scanMsg").textContent = "Камера недоступна (часто так на file://). Нажми «Загрузить картинку».";
-  }
-}
-async function scanImage(file){
-  if(!qrSupported()){ $("scanMsg").textContent = "Этот браузер не умеет читать QR."; return; }
-  try{
-    const bmp = await createImageBitmap(file);
-    const codes = await getDetector().detect(bmp);
-    if(codes && codes.length) handleScan(codes[0].rawValue);
-    else $("scanMsg").textContent = "QR на картинке не распознан. Попробуй другое фото.";
-  }catch(e){
-    $("scanMsg").textContent = "Не удалось прочитать картинку.";
-  }
-}
-function handleScan(text){
-  const cb = scanTarget;
-  closeScanner();
-  if(cb) cb(String(text||"").trim());
-}
-function closeScanner(){
-  if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF=null; }
-  if(scanStream){ scanStream.getTracks().forEach(t=>t.stop()); scanStream=null; }
-  $("scanVideo").srcObject = null;
-  $("scan").classList.remove("open");
-  scanTarget = null;
-}
-/* из текста QR вытащить адрес TRON или хэш транзакции */
-function extractAddr(t){ const m=(t||"").match(/T[1-9A-HJ-NP-Za-km-z]{33}/); return m?m[0]:""; }
-function extractTx(t){ const m=(t||"").match(TXID_RE); return m?m[0]:""; }
-
-/* ── общие помощники ──────────────────────────────────────── */
-function tgHeaders(){
-  const h = {Accept:"application/json"};
-  if(TRONGRID_KEY) h["TRON-PRO-API-KEY"] = TRONGRID_KEY;
-  return h;
-}
-function netMsg(e){
-  return e && e.message==="bad-address"
-    ? "Не удалось прочитать адрес. Проверь, что он скопирован полностью."
-    : "Не удалось связаться с сетью TRON. Проверь интернет и попробуй ещё раз.";
-}
-function parseNum(v){
-  const s = String(v||"").trim().replace(/\s/g,"").replace(",",".");
-  if(s==="") return null;
-  const n = parseFloat(s);
-  return Number.isFinite(n) ? n : null;
-}
-function setBusy(btnId, text, busy){
-  const b = $(btnId); if(!b) return;
-  b.disabled = busy;
-  if(busy){ b.dataset.label = b.textContent; b.textContent = text; }
-  else if(b.dataset.label){ b.textContent = b.dataset.label; }
-}
-let toastT;
-function copy(text){
-  navigator.clipboard?.writeText(text).then(()=>flashToast("Скопировано")).catch(()=>{});
-}
-function flashToast(msg){
-  const t=$("toast"); t.textContent = msg; t.classList.add("show");
-  clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1400);
-}
-
-/* ── вкладка «Радар» (связи конкурентов и клиентов) ───────── */
-const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
-
-function loadListLS(key){
-  try{ const r=localStorage.getItem(key); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) return a; } }catch(e){}
-  return [];
-}
-function saveListLS(key,arr){ try{ localStorage.setItem(key, JSON.stringify(arr)); }catch(e){} }
-
-/* текст «Имя, Tадрес» (по строке) → массив {name,addr}; дедуп по адресу */
-function parseListText(text){
-  const out=[], seen=new Set();
-  String(text||"").split(/\r?\n/).forEach(line=>{
-    line=line.trim(); if(!line) return;
-    const m=line.match(/T[1-9A-HJ-NP-Za-km-z]{33}/);
-    if(!m) return;
-    const addr=m[0];
-    if(seen.has(addr)) return; seen.add(addr);
-    const name=(line.slice(0,m.index)+" "+line.slice(m.index+addr.length))
-      .replace(/[,;|\t]+/g," ").replace(/\s+/g," ").trim();
-    out.push({name,addr});
-  });
-  return out;
-}
-function listToText(arr){
-  return (arr||[]).map(w=>(w.name?w.name+", ":"")+w.addr).join("\n");
-}
-
-/* индекс адрес → {name, group}; приоритет: конкурент > клиент > мой кошелёк */
+/* ── индекс имён ──────────────────────────────────────────── */
 function buildNameIndex(){
   const idx=new Map();
   loadListLS(COMP_KEY).forEach(w=>{ const a=(w.addr||"").trim();
@@ -1034,37 +808,257 @@ function buildNameIndex(){
     if(ADDR_RE.test(a) && !idx.has(a)) idx.set(a,{name:w.name||short(a,6,5),group:"me"}); });
   return idx;
 }
-function groupWord(g){ return g==="client"?"Клиент":g==="comp"?"Конкурент":g==="me"?"Я":"?"; }
+function groupWord(g){ return g==="client"?t("word_client"):g==="comp"?t("word_comp"):g==="me"?t("word_me"):"?"; }
 function grpTag(g){
   const c=g==="client"?"var(--red)":g==="comp"?"var(--amber)":"var(--muted)";
-  return `<span style="font-size:11px;font-weight:700;color:${c}">${groupWord(g)}</span>`;
+  return `<span style="font-size:11px;font-weight:700;color:${c}">${esc(groupWord(g))}</span>`;
 }
+
+/* ── классификация (КРИТИЧЕСКИЙ ИНВАРИАНТ) ────────────────── */
+function classify(tr, myAddr, expect){
+  const info = tr.token_info || {};
+  const contract = info.address || "";
+  const symbol   = info.symbol  || "?";
+  const amount   = toAmount(tr.value, info.decimals);
+  const to       = tr.to || "";
+  const realUSDT = contract === REAL_USDT;
+  const reasons  = [];
+
+  if(!realUSDT){
+    if(USDT_LOOKALIKE.includes((symbol||"").trim())) reasons.push(t("r_fake"));
+    else reasons.push(t("r_other", symbol));
+  }
+  if(myAddr && to !== myAddr) reasons.push(t("r_wrong_recipient"));
+  if(expect != null && amount != null && Math.abs(amount - expect) > 1e-6)
+    reasons.push(t("r_amount", nf.format(amount), nf.format(expect)));
+
+  const ok = realUSDT && reasons.length === 0;
+  if(ok) reasons.push(t("r_ok"));
+  return {ok, symbol, amount, contract, from:tr.from||"", to,
+          time:fmtTime(tr.block_timestamp), tx:tr.transaction_id||"", reasons};
+}
+function heroHTML(c){
+  const cls = c.ok ? "ok" : "bad";
+  const stamp = c.ok ? t("verdict_ok") : t("verdict_bad");
+  const amt = c.amount != null ? nf.format(c.amount) : "?";
+  return `<div class="hero ${cls}">
+      <div class="when">${esc(c.time)}</div>
+      <span class="stamp">${esc(stamp)}</span>
+      <div class="amount">${amt}<span class="sym">${esc(c.symbol)}</span></div>
+      <div class="reasons">
+        ${c.reasons.map(r=>`<div class="reason"><span class="dot"></span><span>${esc(r)}</span></div>`).join("")}
+      </div>
+      <div class="meta">
+        <div class="kv"><span class="k">${esc(t("k_from"))}</span><span class="v">${esc(short(c.from,10,8))}</span>
+          <button class="copy" data-c="${esc(c.from)}">${esc(t("copy"))}</button></div>
+        <div class="kv"><span class="k">${esc(t("k_contract"))}</span><span class="v">${esc(short(c.contract,10,8))}</span>
+          <button class="copy" data-c="${esc(c.contract)}">${esc(t("copy"))}</button></div>
+        <div class="kv"><span class="k">${esc(t("k_transaction"))}</span>
+          <a class="txlink" href="https://tronscan.org/#/transaction/${esc(c.tx)}" target="_blank" rel="noopener">${esc(short(c.tx,8,6))} ↗</a>
+          <button class="copy" data-c="${esc(c.tx)}">${esc(t("copy"))}</button></div>
+      </div>
+    </div>`;
+}
+function wireCopy(out){ out.querySelectorAll(".copy").forEach(b=>b.addEventListener("click",()=>copy(b.dataset.c))); }
+
+/* ── вкладка «Приход» ─────────────────────────────────────── */
+let lastAmount = null;
+function demoData(mode){
+  const me = DEMO_RECIPIENT;
+  const FAKE_CONTRACT = "TPp9rD3kSxWqVbNcMgHfLtUeAoZ7y2sJ4d";
+  const base = 1750000000000, day = 86400000;
+  const mk = (contract, symbol, units, ageDays, from, tx) => ({
+    token_info:{address:contract, symbol, decimals:6},
+    value:String(units), to:me, from, block_timestamp:base - ageDays*day, transaction_id:tx
+  });
+  const f  = mk(FAKE_CONTRACT,"USDT",  23219000000, 0, "TGjYx9scamSenderQwErTyUiOpAsDfGhJ", "deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef");
+  const g1 = mk(REAL_USDT,    "USDT",   1500000000, 1, "TU4xK7nVbCmZpQrStUvWxYz123456789Ab", "5f3c9a2b1d8e47c6a09f12b34c56d78e9012f345a6b7c8d9e0f1a2b3c4d5e6f7");
+  const x  = mk(FAKE_CONTRACT,"Reward", 9999000000, 2, "TPr0aZ8yXwVuTsRqPnMlKjHgFdSc7654Bv", "feedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedfacefeedface");
+  const g2 = mk(REAL_USDT,    "USDT",   8000000000, 3, "TBn7mQ2pLkJhGfDsAzXcVbNm9876543210T", "0a1b2c3d4e5f60718293a4b5c6d7e8f90a1b2c3d4e5f60718293a4b5c6d7e8f9");
+  return mode === "ok" ? [g1,g2,x,f] : [f,g1,x,g2];
+}
+async function checkArrival(){
+  const out  = $("outArrival");
+  const demo = new URLSearchParams(location.hash.slice(1)).get("demo");
+  if(demo){
+    $("addr").value = DEMO_RECIPIENT;
+    renderArrival(demoData(demo), DEMO_RECIPIENT, parseNum($("expect").value));
+    out.insertAdjacentHTML("afterbegin", `<div class="banner demo">${esc(t("demo_banner"))}</div>`);
+    return;
+  }
+  const addr   = $("addr").value.trim();
+  const expect = parseNum($("expect").value);
+  let limit = parseInt($("limit").value,10); if(!(limit>0)) limit=5; if(limit>20) limit=20;
+  if(!ADDR_RE.test(addr)){ out.innerHTML = `<p class="note err">${esc(t("bad_addr"))}</p>`; return; }
+  setBusy("goArrival", t("checking"), true);
+  out.innerHTML = `<p class="note">${esc(t("requesting"))}</p>`;
+  try{
+    const url = `https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=${limit}&only_to=true`;
+    const res = await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    if(!data.success) throw new Error("bad-address");
+    renderArrival(data.data || [], addr, expect);
+  }catch(e){ out.innerHTML = `<p class="note err">${esc(netMsg(e))}</p>`; }
+  finally{ setBusy("goArrival", t("check_arrival"), false); }
+}
+function renderArrival(list, myAddr, expect){
+  const out = $("outArrival");
+  if(!list.length){ out.innerHTML = `<p class="note">${esc(t("arrival_no_tx"))}</p>`; return; }
+  const first = classify(list[0], myAddr, expect);
+  if(first.ok && first.amount != null){ lastAmount = first.amount; offerPrefill(); }
+  let html = heroHTML(first);
+  if(list.length > 1){
+    html += `<div class="more-h">${esc(t("earlier"))}</div>`;
+    for(let i=1;i<list.length;i++){
+      const r = classify(list[i], myAddr, null);
+      html += `<div class="item">
+        <span class="tag ${r.ok?"ok":"bad"}">${r.ok?esc(t("tag_usdt")):esc(t("tag_check"))}</span>
+        <span class="amt">${r.amount!=null?nf.format(r.amount):"?"} ${esc(r.symbol)}</span>
+        <span class="t">${esc((r.time.split(",")[0])||"")}</span>
+      </div>`;
+    }
+  }
+  out.innerHTML = html; wireCopy(out);
+}
+
+/* ── вкладка «Операция» ───────────────────────────────────── */
+async function checkTx(){
+  const out = $("outTx");
+  const raw = $("txid").value.trim();
+  const m = raw.match(TXID_RE);
+  if(!m){ out.innerHTML = `<p class="note err">${esc(t("tx_no_hash"))}</p>`; return; }
+  const hash = m[0].toLowerCase();
+  const expect = parseNum($("txExpect").value);
+  const myAddr = ADDR_RE.test($("addr").value.trim()) ? $("addr").value.trim() : "";
+  setBusy("goTx", t("checking"), true);
+  out.innerHTML = `<p class="note">${esc(t("tx_requesting"))}</p>`;
+  try{
+    const url = `https://api.trongrid.io/v1/transactions/${hash}/events?only_confirmed=true`;
+    const res = await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const transfers = (data.data||[]).filter(e=>e.event_name==="Transfer" && e.result);
+    if(!transfers.length){ out.innerHTML = `<p class="note err">${esc(t("tx_no_transfer"))}</p>`; return; }
+    const ev = transfers.find(e=>e.contract_address===REAL_USDT) || transfers[0];
+    const r = ev.result;
+    const to   = await hexToTronAddr(r.to);
+    const from = await hexToTronAddr(r.from);
+    const tr = {
+      token_info:{address:ev.contract_address||"", symbol:(ev.contract_address===REAL_USDT?"USDT":"?"), decimals:6},
+      value:r.value ?? r.amount ?? "0", to, from,
+      block_timestamp:ev.block_timestamp, transaction_id:hash
+    };
+    const c = classify(tr, myAddr, expect);
+    let html = heroHTML(c);
+    if(!myAddr) html = `<div class="banner demo">${esc(t("tx_no_addr_banner"))}</div>` + html;
+    out.innerHTML = html; wireCopy(out);
+  }catch(e){ out.innerHTML = `<p class="note err">${esc(netMsg(e))}</p>`; }
+  finally{ setBusy("goTx", t("check_tx"), false); }
+}
+
+/* ── вкладка «Грязность» ──────────────────────────────────── */
+async function checkTaint(){
+  const out = $("outTaint");
+  const addr = $("taintAddr").value.trim();
+  if(!ADDR_RE.test(addr)){ out.innerHTML = `<p class="note err">${esc(t("taint_not_tron"))}</p>`; return; }
+  const param = addrToAbiParam(addr);
+  if(!param){ out.innerHTML = `<p class="note err">${esc(t("taint_parse_err"))}</p>`; return; }
+  setBusy("goTaint", t("checking"), true);
+  out.innerHTML = `<p class="note">${esc(t("taint_asking"))}</p>`;
+  try{
+    const res = await fetch("https://api.trongrid.io/wallet/triggerconstantcontract",{
+      method:"POST",
+      headers:Object.assign({"Content-Type":"application/json"}, tgHeaders()),
+      body:JSON.stringify({owner_address:addr, contract_address:REAL_USDT,
+        function_selector:"isBlackListed(address)", parameter:param, visible:true})
+    });
+    if(!res.ok) throw new Error("HTTP "+res.status);
+    const data = await res.json();
+    const cr = data.constant_result && data.constant_result[0];
+    if(!cr) throw new Error("no-result");
+    const blacklisted = BigInt("0x"+cr) !== 0n;
+    const cls = blacklisted ? "bad" : "ok";
+    const stamp = blacklisted ? t("taint_listed") : t("taint_clean");
+    const big = blacklisted ? t("taint_frozen") : t("taint_not_frozen");
+    const reason = blacklisted ? t("taint_reason_listed") : t("taint_reason_clean");
+    out.innerHTML = `<div class="hero ${cls}">
+        <span class="stamp">${esc(stamp)}</span>
+        <div class="amount" style="font-size:26px">${esc(big)}</div>
+        <div class="reasons"><div class="reason"><span class="dot"></span><span>${esc(reason)}</span></div></div>
+        <div class="meta">
+          <div class="kv"><span class="k">${esc(t("k_address"))}</span><span class="v">${esc(short(addr,10,8))}</span>
+            <button class="copy" data-c="${esc(addr)}">${esc(t("copy"))}</button></div>
+        </div>
+      </div>
+      <p class="hint">${esc(t("taint_footer"))}</p>`;
+    wireCopy(out);
+  }catch(e){ out.innerHTML = `<p class="note err">${esc(netMsg(e))}</p>`; }
+  finally{ setBusy("goTaint", t("check_taint"), false); }
+}
+
+/* ── вкладка «Калькулятор» ────────────────────────────────── */
+let calcDir = "u2c";
+function setCalcDir(dir){
+  calcDir = dir;
+  document.querySelectorAll("#calcDir button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.dir===dir)));
+  $("calcAmtLbl").textContent = dir==="u2c" ? t("calc_amt_u2c") : t("calc_amt_c2u");
+  offerPrefill(); $("outCalc").innerHTML = "";
+}
+function offerPrefill(){
+  const btn = $("calcPrefill");
+  btn.hidden = !(calcDir==="u2c" && lastAmount!=null);
+  if(!btn.hidden) btn.textContent = t("calc_prefill", nf.format(lastAmount));
+}
+function calc(){
+  const out = $("outCalc");
+  const amt  = parseNum($("calcAmt").value);
+  const rate = parseNum($("calcRate").value);
+  const pct  = parseNum($("calcPct").value) || 0;
+  const mode = $("calcMode").value;
+  const cur  = $("calcCur").value.trim() || "";
+  if(amt==null || amt<=0 || rate==null || rate<=0){ out.innerHTML = `<p class="note err">${esc(t("calc_err"))}</p>`; return; }
+  const k = mode==="fee" ? (1 - pct/100) : (1 + pct/100);
+  let gross, net, outUnit, grossUnit;
+  if(calcDir==="u2c"){ gross = amt*rate; net = gross*k; outUnit = cur; grossUnit = cur; }
+  else { gross = amt/rate; net = gross*k; outUnit = "USDT"; grossUnit = "USDT"; }
+  const fmtOut = outUnit==="USDT" ? nf : nf2;
+  const gFmt = grossUnit==="USDT" ? nf : nf2;
+  const left = calcDir==="u2c" ? `${nf.format(amt)} USDT × ${nf2.format(rate)}` : `${nf2.format(amt)} ${esc(cur)} ÷ ${nf2.format(rate)}`;
+  const pctLine = mode==="fee" ? t("calc_fee_line", pct) : t("calc_markup_line", pct);
+  out.innerHTML = `<div class="calc-out">
+      <div class="lbl">${esc(t("calc_out_label"))}</div>
+      <div class="big">${fmtOut.format(net)} <span style="font-size:18px">${esc(outUnit)}</span></div>
+      <div class="brk">
+        <div class="r"><span>${left}</span><span>${gFmt.format(gross)} ${esc(grossUnit)}</span></div>
+        <div class="r"><span>${esc(pctLine)}</span><span>${mode==="fee"?"−":"+"}${gFmt.format(Math.abs(gross-net))} ${esc(grossUnit)}</span></div>
+      </div>
+    </div>`;
+}
+
+/* ── Радар: списки, кеш, сканирование ─────────────────────── */
+const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
 
 function renderRadarEditors(){
   $("myText").value     = listToText(loadListLS(WALLET_KEY));
   $("compText").value   = listToText(loadListLS(COMP_KEY));
   $("clientText").value = listToText(loadListLS(CLIENT_KEY));
   const cnt=key=>loadListLS(key).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
-  $("myCount").textContent     = cnt(WALLET_KEY);
-  $("compCount").textContent   = cnt(COMP_KEY);
-  $("clientCount").textContent = cnt(CLIENT_KEY);
+  $("mySave").textContent     = `${t("save_my")} (${cnt(WALLET_KEY)})`;
+  $("compSave").textContent   = `${t("save_comp")} (${cnt(COMP_KEY)})`;
+  $("clientSave").textContent = `${t("save_clients")} (${cnt(CLIENT_KEY)})`;
+  $("radarShare").textContent = t("share_base");
 }
-
-/* кликабельные имена: один список (конкуренты/клиенты) с фильтром; тап → отчёт */
 function renderEntityList(boxId, key, selfGroup, filter){
   const box=$(boxId);
-  let items=loadListLS(key).filter(w=>ADDR_RE.test((w.addr||"").trim()))
-    .map(w=>({name:w.name,addr:w.addr.trim()}));
+  let items=loadListLS(key).filter(w=>ADDR_RE.test((w.addr||"").trim())).map(w=>({name:w.name,addr:w.addr.trim()}));
   const f=(filter||"").trim().toLowerCase();
   if(f) items=items.filter(w=>((w.name||"")+" "+w.addr).toLowerCase().includes(f));
-  if(!items.length){
-    box.innerHTML=`<p class="hint" style="margin:4px 2px">${f?"Ничего не найдено.":"Пусто — нажми «✎ изменить» и добавь."}</p>`;
-    return;
-  }
+  if(!items.length){ box.innerHTML=`<p class="hint" style="margin:4px 2px">${esc(f?t("nothing_found"):t("list_empty"))}</p>`; return; }
   box.innerHTML=items.map((w,i)=>`<button class="comp-row" data-i="${i}">
       <span class="nm">${esc(w.name||short(w.addr,6,5))}</span>
       <span class="ad">${esc(short(w.addr,6,5))}</span>
-      <span class="go">связи ›</span>
+      <span class="go">${esc(t("links_word"))}</span>
     </button>`).join("");
   box.querySelectorAll(".comp-row").forEach(b=>b.addEventListener("click",()=>{
     const w=items[+b.dataset.i]; scanOneAddress(w.name, w.addr, selfGroup);
@@ -1077,186 +1071,7 @@ function renderRadarLists(){
   renderEntityList("clientList", CLIENT_KEY, "client", f);
 }
 
-/* самый свежий TRC20-перевод адреса (мс); 0 — переводов нет вовсе, null — ошибка */
-async function lastActivityMs(addr){
-  try{
-    const url=`https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=1&order_by=block_timestamp,desc`;
-    const res=await fetch(url,{headers:tgHeaders()});
-    if(!res.ok) return null;
-    const d=await res.json();
-    const t=(d.data||[])[0];
-    return t ? (Number(t.block_timestamp)||0) : 0;
-  }catch(e){ return null; }
-}
-
-/* отчёт по одному адресу: его связи с твоей базой (selfGroup: 'me' | 'comp' | 'client') */
-const DEAD_DAYS = 7;            // нет операций столько дней → подозрение на мёртвый кошелёк
-let radarLastScan=null;
-async function scanOneAddress(name, addr, selfGroup, force){
-  const out=$("outRadar");
-  if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">Адрес неверный.</p>`; return; }
-  radarLastScan={name,addr,selfGroup};
-  const idx=buildNameIndex();
-  let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
-  const since=Date.now()-days*86400000;
-  const title=name||short(addr,6,5);
-  out.innerHTML=`<p class="note">Смотрю связи: ${esc(title)} за ${days} дн…</p>`;
-  out.scrollIntoView({behavior:"smooth",block:"start"});
-  try{
-    const {transfers, truncated, at, cached}=await getTransfers(addr, since, !!force);
-    const map=new Map();
-    const meTxs=[], meSeen=new Set();                  // отдельные операции с моими кошельками
-    transfers.forEach(t=>{
-      const info=t.token_info||{};
-      if(info.address!==REAL_USDT) return;             // только настоящий USDT
-      const from=t.from||"", to=t.to||"";
-      const cp=(from===addr)?to:from;
-      if(!cp || cp===addr) return;
-      const m=idx.get(cp); if(!m) return;               // контрагент должен быть в базе (мои/конкуренты/клиенты)
-      const amt=toAmount(t.value,info.decimals)||0;
-      const ts=Number(t.block_timestamp)||0;
-      const txid=t.transaction_id||"";
-      if(m.group==="me" && (!txid || !meSeen.has(txid))){
-        if(txid) meSeen.add(txid);
-        meTxs.push({ts, amount:amt, txid,
-          toMe: from===addr,                          // он → мой кошелёк = я получил
-          fromName: from===addr ? title : m.name,
-          toName:   from===addr ? m.name : title});
-      }
-      let e=map.get(cp);
-      if(!e){ e={cp, name:m.name, group:m.group, txids:new Set(), total:0, last:0, out:0, inn:0}; map.set(cp,e); }
-      if(txid && e.txids.has(txid)) return;
-      if(txid) e.txids.add(txid);
-      e.total+=amt; if(ts>e.last) e.last=ts;
-      if(from===addr) e.out++; else e.inn++;            // out: он → контрагент; inn: контрагент → он
-    });
-    // проверка активности: самый свежий перевод в окне, иначе отдельный запрос
-    let lastAct;
-    if(transfers.length){ let nw=0; transfers.forEach(t=>{const ts=Number(t.block_timestamp)||0; if(ts>nw) nw=ts;}); lastAct=nw; }
-    else { lastAct = await lastActivityMs(addr); }       // 0 — нет вовсе, null — ошибка
-    const inactiveDays = lastAct==null ? null : (lastAct===0 ? Infinity : (Date.now()-lastAct)/86400000);
-
-    radarReport={selfName:title, selfGroup, edges:Array.from(map.values()), meTxs,
-                 days, truncated, meta:{at, cached, inactiveDays}};
-    radarView="general";
-    renderReport();
-  }catch(e){
-    out.innerHTML=`<p class="note err">${netMsg(e)}</p>`;
-  }
-}
-
-function oneCard(e, compName, cls){
-  const cnt=e.out+e.inn, total=nf.format(e.total);
-  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
-  return `<div class="edge ${cls}">
-    <div class="edge-h">${grpTag(e.group)} <b>${esc(e.name)}</b></div>
-    <div class="edge-s">${cnt} переводов · ${total} USDT · последний ${esc(last)}</div>
-    <div class="edge-d">${esc(compName)} → ${esc(e.name)}: ${e.out} &nbsp;·&nbsp; ${esc(e.name)} → ${esc(compName)}: ${e.inn}</div>
-    <div class="edge-a"><span>${esc(short(e.cp,8,6))}</span><button class="copy" data-c="${esc(e.cp)}">копир.</button></div>
-  </div>`;
-}
-
-let radarReport=null;          // данные последнего отчёта (для смены вида без перезапроса)
-let radarView="general";       // 'general' (общие связи) | 'me' (операции со мной)
-
-// секции «общих связей» по роли. Красным — только бизнес-тревога; для «меня» тревоги нет.
-const RADAR_SECTIONS = {
-  comp:   [{g:"client", t:"⚠️ Связи с твоими клиентами", red:true},
-           {g:"comp",   t:"С другими конкурентами"},
-           {g:"me",     t:"С твоими кошельками"}],
-  client: [{g:"comp",   t:"⚠️ Работает с конкурентами",  red:true},
-           {g:"client", t:"С другими клиентами"},
-           {g:"me",     t:"С твоими кошельками"}],
-  me:     [{g:"client", t:"Твои клиенты"},
-           {g:"comp",   t:"Конкуренты"},
-           {g:"me",     t:"Между твоими кошельками"}],
-};
-
-function renderConnections(r){
-  const byGroup=g=>r.edges.filter(e=>e.group===g).sort((a,b)=>b.last-a.last);
-  const cfg=RADAR_SECTIONS[r.selfGroup]||RADAR_SECTIONS.comp;
-  let html="", any=false;
-  cfg.forEach(s=>{
-    const arr=byGroup(s.g); if(!arr.length) return; any=true;
-    html += s.red
-      ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${s.t}: ${arr.length}</div>`
-      : `<div class="more-h">${s.t}</div>`;
-    arr.forEach(e=>html+=oneCard(e, r.selfName, s.red?"bad":""));
-  });
-  if(!any) html+=`<p class="note">За ${r.days} дн. связей с твоей базой нет.</p>`;
-  return html;
-}
-
-function renderMeTxs(r){
-  const txs=r.meTxs.slice().sort((a,b)=>b.ts-a.ts);
-  if(!txs.length) return `<p class="note">Операций с твоими кошельками за ${r.days} дн. нет.</p>`;
-  const received=txs.filter(t=>t.toMe).reduce((s,t)=>s+(t.amount||0),0);   // он мне
-  const sent    =txs.filter(t=>!t.toMe).reduce((s,t)=>s+(t.amount||0),0);  // я ему
-  const net=received-sent;
-  const netColor = net>=0 ? "var(--green)" : "var(--red)";
-  let html=`<div class="calc-out" style="margin:0 0 12px">
-      <div class="lbl">Сальдо с тобой · ${txs.length} операц.</div>
-      <div class="big" style="color:${netColor}">${net>=0?"+":"−"}${nf.format(Math.abs(net))} <span style="font-size:18px">USDT</span></div>
-      <div class="brk">
-        <div class="r"><span>Получено от него</span><span>${nf.format(received)} USDT</span></div>
-        <div class="r"><span>Отправлено ему</span><span>${nf.format(sent)} USDT</span></div>
-        <div class="r"><span>Сальдо</span><span>${net>=0?"в мою пользу":"в его пользу"}</span></div>
-      </div>
-    </div>`;
-  txs.forEach(t=>{
-    const day=t.ts? (fmtTime(t.ts).split(",")[0]||"?") : "?";
-    html+=`<div class="edge">
-      <div class="edge-h"><b>${esc(t.fromName)}</b> → <b>${esc(t.toName)}</b></div>
-      <div class="edge-s">${nf.format(t.amount)} USDT · ${esc(day)}</div>
-      <div class="edge-a">
-        <a class="txlink" href="https://tronscan.org/#/transaction/${esc(t.txid)}" target="_blank" rel="noopener">${esc(short(t.txid,8,6))} ↗</a>
-        <button class="copy" data-c="${esc(t.txid)}">копир.</button>
-      </div>
-    </div>`;
-  });
-  return html;
-}
-
-function renderReport(){
-  const r=radarReport; if(!r) return;
-  const out=$("outRadar");
-  let html=`<div class="more-h" style="margin-top:4px">Связи: ${esc(r.selfName)} · за ${r.days} дн.</div>`;
-  if(r.meta && r.meta.at){
-    const clock=new Date(r.meta.at).toLocaleTimeString("ru-RU",{hour:"2-digit",minute:"2-digit"});
-    html+=`<p class="hint" style="margin:0 2px 8px">${r.meta.cached?"Из кеша · ":""}данные на ${clock} · <button class="prefill" id="radarRefresh" style="margin:0">↻ обновить</button></p>`;
-  }
-  if(r.truncated) html+=`<p class="hint">Переводов за период больше, чем влезло — показана не вся история (уменьши период или впиши TRONGRID_KEY).</p>`;
-  if(r.meta && r.meta.inactiveDays!=null && r.meta.inactiveDays>=DEAD_DAYS){
-    const txt = isFinite(r.meta.inactiveDays)
-      ? `💤 Кошелёк неактивен ${Math.floor(r.meta.inactiveDays)} дн. — возможно, мёртвый. Стоит удалить из базы.`
-      : `💤 У кошелька нет ни одной USDT-операции — возможно, мёртвый. Стоит удалить из базы.`;
-    html+=`<div class="banner" style="background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)">${txt}</div>`;
-  }
-
-  // переключатель «Общие / Со мной» — только для конкурента и клиента (для «меня» это и так я)
-  if(r.selfGroup!=="me"){
-    html+=`<div class="seg" id="radarView" style="max-width:320px;margin:4px 0 12px">
-      <button type="button" data-v="general" aria-pressed="${radarView==="general"}">Общие связи</button>
-      <button type="button" data-v="me" aria-pressed="${radarView==="me"}">Со мной</button>
-    </div>`;
-  }
-
-  html += (r.selfGroup!=="me" && radarView==="me") ? renderMeTxs(r) : renderConnections(r);
-
-  out.innerHTML=html;
-  wireCopy(out);
-  const rb=$("radarRefresh");
-  if(rb && radarLastScan) rb.addEventListener("click",()=>
-    scanOneAddress(radarLastScan.name, radarLastScan.addr, radarLastScan.selfGroup, true));
-  const vt=$("radarView");
-  if(vt) vt.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{
-    radarView=b.dataset.v; renderReport();        // переключение вида без перезапроса
-  }));
-}
-
-const RADAR_MAX_PAGES = 12;   // потолок страниц на адрес (12×200 = до 2400 переводов)
-
-/* подгружаем переводы адреса начиная с момента sinceMs, листая страницы по fingerprint */
+const RADAR_MAX_PAGES = 12;
 async function fetchTransfersSince(addr, sinceMs){
   let all=[], fp=null, pages=0;
   while(pages<RADAR_MAX_PAGES){
@@ -1266,22 +1081,17 @@ async function fetchTransfersSince(addr, sinceMs){
     const res=await fetch(url,{headers:tgHeaders()});
     if(!res.ok) throw new Error("HTTP "+res.status);
     const data=await res.json();
-    const arr=data.data||[];
-    all.push(...arr);
-    pages++;
+    const arr=data.data||[]; all.push(...arr); pages++;
     fp=data.meta && data.meta.fingerprint;
     if(!fp || !arr.length) return {transfers:all, truncated:false};
     await sleep(160);
   }
-  return {transfers:all, truncated:true};                 // история глубже окна — показана не вся
+  return {transfers:all, truncated:true};
 }
-
-/* кеш на сессию: повторный тап в течение TTL не дёргает сеть заново */
-const radarCache = new Map();           // addr -> {at, since, transfers, truncated}
-const RADAR_TTL  = 90000;               // 90 секунд
+const radarCache = new Map();
+const RADAR_TTL  = 90000;
 async function getTransfers(addr, sinceMs, force){
   const c = radarCache.get(addr);
-  // годится, если кеш свежий и покрывает запрошенный период (начат не позже)
   if(!force && c && (Date.now()-c.at)<RADAR_TTL && c.since<=sinceMs){
     return {transfers:c.transfers.filter(t=>(Number(t.block_timestamp)||0)>=sinceMs),
             truncated:c.truncated, at:c.at, cached:true};
@@ -1291,188 +1101,394 @@ async function getTransfers(addr, sinceMs, force){
   radarCache.set(addr, {at, since:sinceMs, transfers, truncated});
   return {transfers, truncated, at, cached:false};
 }
+async function lastActivityMs(addr){
+  try{
+    const url=`https://api.trongrid.io/v1/accounts/${addr}/transactions/trc20?limit=1&order_by=block_timestamp,desc`;
+    const res=await fetch(url,{headers:tgHeaders()});
+    if(!res.ok) return null;
+    const d=await res.json();
+    const tr=(d.data||[])[0];
+    return tr ? (Number(tr.block_timestamp)||0) : 0;
+  }catch(e){ return null; }
+}
 
-async function scanRadar(){
+const DEAD_DAYS = 7;
+let radarLastScan=null, radarReport=null, radarView="general";
+
+async function scanOneAddress(name, addr, selfGroup, force){
   const out=$("outRadar");
-  const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
-    .map(w=>({name:w.name,addr:w.addr.trim()}));
-  if(!comps.length){
-    out.innerHTML=`<p class="note err">Добавь хотя бы одного конкурента и сохрани список.</p>`; return;
-  }
+  if(!ADDR_RE.test(addr)){ out.innerHTML=`<p class="note err">${esc(t("addr_invalid"))}</p>`; return; }
+  radarLastScan={name,addr,selfGroup};
   const idx=buildNameIndex();
   let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
   const since=Date.now()-days*86400000;
+  const title=name||short(addr,6,5);
+  out.innerHTML=`<p class="note">${esc(t("scanning_one", title, days))}</p>`;
+  out.scrollIntoView({behavior:"smooth",block:"start"});
+  try{
+    const {transfers, truncated, at, cached}=await getTransfers(addr, since, !!force);
+    const map=new Map();
+    const meTxs=[], meSeen=new Set();
+    transfers.forEach(tr=>{
+      const info=tr.token_info||{};
+      if(info.address!==REAL_USDT) return;
+      const from=tr.from||"", to=tr.to||"";
+      const cp=(from===addr)?to:from;
+      if(!cp || cp===addr) return;
+      const m=idx.get(cp); if(!m) return;
+      const amt=toAmount(tr.value,info.decimals)||0;
+      const ts=Number(tr.block_timestamp)||0;
+      const txid=tr.transaction_id||"";
+      if(m.group==="me" && (!txid || !meSeen.has(txid))){
+        if(txid) meSeen.add(txid);
+        meTxs.push({ts, amount:amt, txid, toMe: from===addr,
+          fromName: from===addr ? title : m.name, toName: from===addr ? m.name : title});
+      }
+      let e=map.get(cp);
+      if(!e){ e={cp, name:m.name, group:m.group, txids:new Set(), total:0, last:0, out:0, inn:0}; map.set(cp,e); }
+      if(txid && e.txids.has(txid)) return;
+      if(txid) e.txids.add(txid);
+      e.total+=amt; if(ts>e.last) e.last=ts;
+      if(from===addr) e.out++; else e.inn++;
+    });
+    let lastAct;
+    if(transfers.length){ let nw=0; transfers.forEach(tr=>{const ts=Number(tr.block_timestamp)||0; if(ts>nw) nw=ts;}); lastAct=nw; }
+    else { lastAct = await lastActivityMs(addr); }
+    const inactiveDays = lastAct==null ? null : (lastAct===0 ? Infinity : (Date.now()-lastAct)/86400000);
 
-  setBusy("goRadar","Сканирую…",true);
+    radarReport={selfName:title, selfGroup, edges:Array.from(map.values()), meTxs, days, truncated, meta:{at, cached, inactiveDays}};
+    radarView="general"; renderReport();
+  }catch(e){ out.innerHTML=`<p class="note err">${esc(netMsg(e))}</p>`; }
+}
+
+function oneCard(e, compName, cls){
+  const cnt=e.out+e.inn, total=nf.format(e.total);
+  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
+  return `<div class="edge ${cls}">
+    <div class="edge-h">${grpTag(e.group)} <b>${esc(e.name)}</b></div>
+    <div class="edge-s">${cnt} · ${total} USDT · ${esc(last)}</div>
+    <div class="edge-d">${esc(compName)} → ${esc(e.name)}: ${e.out} &nbsp;·&nbsp; ${esc(e.name)} → ${esc(compName)}: ${e.inn}</div>
+    <div class="edge-a"><span>${esc(short(e.cp,8,6))}</span><button class="copy" data-c="${esc(e.cp)}">${esc(t("copy"))}</button></div>
+  </div>`;
+}
+const RADAR_SECTIONS = {
+  comp:   [{g:"client", t:"sec_clients_alarm", red:true},{g:"comp", t:"sec_other_comp"},{g:"me", t:"sec_with_my"}],
+  client: [{g:"comp",   t:"sec_comp_alarm",   red:true},{g:"client", t:"sec_other_clients"},{g:"me", t:"sec_with_my"}],
+  me:     [{g:"client", t:"me_clients"},{g:"comp", t:"me_comp"},{g:"me", t:"me_between"}],
+};
+function renderConnections(r){
+  const byGroup=g=>r.edges.filter(e=>e.group===g).sort((a,b)=>b.last-a.last);
+  const cfg=RADAR_SECTIONS[r.selfGroup]||RADAR_SECTIONS.comp;
+  let html="", any=false;
+  cfg.forEach(s=>{
+    const arr=byGroup(s.g); if(!arr.length) return; any=true;
+    html += s.red
+      ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${esc(t(s.t))}: ${arr.length}</div>`
+      : `<div class="more-h">${esc(t(s.t))}</div>`;
+    arr.forEach(e=>html+=oneCard(e, r.selfName, s.red?"bad":""));
+  });
+  if(!any) html+=`<p class="note">${esc(t("no_links", r.days))}</p>`;
+  return html;
+}
+function renderMeTxs(r){
+  const txs=r.meTxs.slice().sort((a,b)=>b.ts-a.ts);
+  if(!txs.length) return `<p class="note">${esc(t("me_no_ops", r.days))}</p>`;
+  const received=txs.filter(x=>x.toMe).reduce((s,x)=>s+(x.amount||0),0);
+  const sent    =txs.filter(x=>!x.toMe).reduce((s,x)=>s+(x.amount||0),0);
+  const net=received-sent, turnover=received+sent;
+  const netColor = net>=0 ? "var(--green)" : "var(--red)";
+  let html=`<div class="calc-out" style="margin:0 0 12px">
+      <div class="lbl">${esc(t("saldo_title", txs.length))}</div>
+      <div class="big" style="color:${netColor}">${net>=0?"+":"−"}${nf.format(Math.abs(net))} <span style="font-size:18px">USDT</span></div>
+      <div class="lbl" style="margin-top:2px">${esc(t("turnover", nf.format(turnover)))}</div>
+      <div class="brk">
+        <div class="r"><span>${esc(t("received_from"))}</span><span>${nf.format(received)} USDT</span></div>
+        <div class="r"><span>${esc(t("sent_to"))}</span><span>${nf.format(sent)} USDT</span></div>
+        <div class="r"><span>${esc(t("saldo_word"))}</span><span>${esc(net>=0?t("in_my_favor"):t("in_their_favor"))}</span></div>
+      </div>
+    </div>`;
+  txs.forEach(x=>{
+    const day=x.ts? (fmtTime(x.ts).split(",")[0]||"?") : "?";
+    html+=`<div class="edge">
+      <div class="edge-h"><b>${esc(x.fromName)}</b> → <b>${esc(x.toName)}</b></div>
+      <div class="edge-s">${nf.format(x.amount)} USDT · ${esc(day)}</div>
+      <div class="edge-a">
+        <a class="txlink" href="https://tronscan.org/#/transaction/${esc(x.txid)}" target="_blank" rel="noopener">${esc(short(x.txid,8,6))} ↗</a>
+        <button class="copy" data-c="${esc(x.txid)}">${esc(t("copy"))}</button>
+      </div>
+    </div>`;
+  });
+  return html;
+}
+function renderReport(){
+  const r=radarReport; if(!r) return;
+  const out=$("outRadar");
+  let html=`<div class="more-h" style="margin-top:4px">${esc(t("report_title", r.selfName, r.days))}</div>`;
+  if(r.meta && r.meta.at){
+    const clock=new Date(r.meta.at).toLocaleTimeString(LANG==="en"?"en-GB":"ru-RU",{hour:"2-digit",minute:"2-digit"});
+    html+=`<p class="hint" style="margin:0 2px 8px">${r.meta.cached?esc(t("from_cache")):""}${esc(t("data_at", clock))} · <button class="prefill" id="radarRefresh" style="margin:0">${esc(t("refresh"))}</button></p>`;
+  }
+  if(r.truncated) html+=`<p class="hint">${esc(t("truncated"))}</p>`;
+  if(r.meta && r.meta.inactiveDays!=null && r.meta.inactiveDays>=DEAD_DAYS){
+    const txt = isFinite(r.meta.inactiveDays) ? t("dead_n", Math.floor(r.meta.inactiveDays)) : t("dead_none");
+    html+=`<div class="banner" style="background:var(--amber-soft);border:1px solid #F0D9A8;color:var(--amber)">${esc(txt)}</div>`;
+  }
+  if(r.selfGroup!=="me"){
+    html+=`<div class="seg" id="radarView" style="max-width:320px;margin:4px 0 12px">
+      <button type="button" data-v="general" aria-pressed="${radarView==="general"}">${esc(t("view_general"))}</button>
+      <button type="button" data-v="me" aria-pressed="${radarView==="me"}">${esc(t("view_me"))}</button>
+    </div>`;
+  }
+  html += (r.selfGroup!=="me" && radarView==="me") ? renderMeTxs(r) : renderConnections(r);
+  out.innerHTML=html; wireCopy(out);
+  const rb=$("radarRefresh");
+  if(rb && radarLastScan) rb.addEventListener("click",()=>scanOneAddress(radarLastScan.name, radarLastScan.addr, radarLastScan.selfGroup, true));
+  const vt=$("radarView");
+  if(vt) vt.querySelectorAll("button").forEach(b=>b.addEventListener("click",()=>{ radarView=b.dataset.v; renderReport(); }));
+}
+
+/* общий отчёт «проверить всех конкурентов» */
+function edgeHTML(e, idx){
+  const A=idx.get(e.a)||{name:short(e.a,6,5),group:"?"};
+  const B=idx.get(e.b)||{name:short(e.b,6,5),group:"?"};
+  const cnt=e.fwd+e.bwd, total=nf.format(e.total);
+  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
+  return `<div class="edge ${e.type==="kc"?"bad":""}">
+    <div class="edge-h">${grpTag(A.group)} <b>${esc(A.name)}</b> ↔ ${grpTag(B.group)} <b>${esc(B.name)}</b></div>
+    <div class="edge-s">${cnt} · ${total} USDT · ${esc(last)}</div>
+    <div class="edge-d">${esc(A.name)} → ${esc(B.name)}: ${e.fwd} &nbsp;·&nbsp; ${esc(B.name)} → ${esc(A.name)}: ${e.bwd}</div>
+    <div class="edge-a">
+      <span>${esc(short(e.a,8,6))}</span><button class="copy" data-c="${esc(e.a)}">${esc(t("copy"))}</button>
+      <span>${esc(short(e.b,8,6))}</span><button class="copy" data-c="${esc(e.b)}">${esc(t("copy"))}</button>
+    </div>
+  </div>`;
+}
+async function scanRadar(){
+  const out=$("outRadar");
+  const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).map(w=>({name:w.name,addr:w.addr.trim()}));
+  if(!comps.length){ out.innerHTML=`<p class="note err">${esc(t("need_competitor"))}</p>`; return; }
+  const idx=buildNameIndex();
+  let days=parseInt($("radarDays").value,10); if(!(days>0)) days=7; if(days>365) days=365;
+  const since=Date.now()-days*86400000;
+  setBusy("goRadar", t("checking"), true);
   const edges=new Map(); let errors=0, truncatedAny=false;
   for(let i=0;i<comps.length;i++){
     const comp=comps[i];
-    out.innerHTML=`<p class="note">Сканирую конкурентов: ${i+1} / ${comps.length} (за ${days} дн.)…</p>`;
+    out.innerHTML=`<p class="note">${esc(t("scanning_all", i+1, comps.length, days))}</p>`;
     try{
       const {transfers, truncated}=await getTransfers(comp.addr, since, false);
       if(truncated) truncatedAny=true;
-      transfers.forEach(t=>{
-        const info=t.token_info||{};
-        if(info.address!==REAL_USDT) return;            // только настоящий USDT
-        const from=t.from||"", to=t.to||"";
-        const cp = (from===comp.addr) ? to : from;       // контрагент
+      transfers.forEach(tr=>{
+        const info=tr.token_info||{};
+        if(info.address!==REAL_USDT) return;
+        const from=tr.from||"", to=tr.to||"";
+        const cp=(from===comp.addr)?to:from;
         if(!cp || cp===comp.addr) return;
-        const m=idx.get(cp); if(!m) return;              // контрагент не в базе — пропуск
-        let type;
-        if(m.group==="client") type="kc";               // клиент ↔ конкурент
-        else if(m.group==="comp") type="cc";            // конкурент ↔ конкурент
-        else return;                                     // мой кошелёк — не интересует
-        const amt=toAmount(t.value,info.decimals)||0;
-        const ts=Number(t.block_timestamp)||0;
-        const txid=t.transaction_id||"";
-        let a,b;
-        if(type==="cc"){ const p=[comp.addr,cp].sort(); a=p[0]; b=p[1]; }
-        else { a=cp; b=comp.addr; }                      // a=клиент, b=конкурент
+        const m=idx.get(cp); if(!m) return;
+        let type; if(m.group==="client") type="kc"; else if(m.group==="comp") type="cc"; else return;
+        const amt=toAmount(tr.value,info.decimals)||0;
+        const ts=Number(tr.block_timestamp)||0;
+        const txid=tr.transaction_id||"";
+        let a,b; if(type==="cc"){ const p=[comp.addr,cp].sort(); a=p[0]; b=p[1]; } else { a=cp; b=comp.addr; }
         const key=type+"|"+a+"|"+b;
         let e=edges.get(key);
         if(!e){ e={type,a,b,txids:new Set(),total:0,last:0,fwd:0,bwd:0}; edges.set(key,e); }
-        if(txid && e.txids.has(txid)) return;            // одна транзакция видна из обоих сканов
+        if(txid && e.txids.has(txid)) return;
         if(txid) e.txids.add(txid);
         e.total+=amt; if(ts>e.last) e.last=ts;
         if(from===a) e.fwd++; else e.bwd++;
       });
     }catch(err){ errors++; }
-    if(i<comps.length-1) await sleep(160);               // бережём лимит TronGrid
+    if(i<comps.length-1) await sleep(160);
   }
   renderRadar(out, Array.from(edges.values()), idx, comps.length, errors, days, truncatedAny);
-  setBusy("goRadar","Проверить связи",false);
+  setBusy("goRadar", t("scan_all"), false);
 }
-
-function edgeHTML(e, idx){
-  const A=idx.get(e.a)||{name:short(e.a,6,5),group:"?"};
-  const B=idx.get(e.b)||{name:short(e.b,6,5),group:"?"};
-  const cnt=e.fwd+e.bwd;
-  const total=nf.format(e.total);
-  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
-  return `<div class="edge ${e.type==="kc"?"bad":""}">
-    <div class="edge-h">${grpTag(A.group)} <b>${esc(A.name)}</b> ↔ ${grpTag(B.group)} <b>${esc(B.name)}</b></div>
-    <div class="edge-s">${cnt} переводов · ${total} USDT · последний ${esc(last)}</div>
-    <div class="edge-d">${esc(A.name)} → ${esc(B.name)}: ${e.fwd} &nbsp;·&nbsp; ${esc(B.name)} → ${esc(A.name)}: ${e.bwd}</div>
-    <div class="edge-a">
-      <span>${esc(short(e.a,8,6))}</span><button class="copy" data-c="${esc(e.a)}">копир.</button>
-      <span>${esc(short(e.b,8,6))}</span><button class="copy" data-c="${esc(e.b)}">копир.</button>
-    </div>
-  </div>`;
-}
-
 function renderRadar(out, edges, idx, nComp, errors, days, truncatedAny){
   const kc=edges.filter(e=>e.type==="kc").sort((x,y)=>y.last-x.last);
   const cc=edges.filter(e=>e.type==="cc").sort((x,y)=>y.last-x.last);
   let html = kc.length
-    ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">⚠️ Связей «клиент ↔ конкурент»: ${kc.length}. Похоже, кто-то работает в обход.</div>`
-    : `<div class="banner demo">Связей «клиент ↔ конкурент» не найдено.</div>`;
-  html += `<p class="hint">Просканировано конкурентов: ${nComp} за ${days} дн. `
-    + `${truncatedAny?"У части адресов переводов больше, чем влезло в окно — показана не вся история (уменьши период или впиши TRONGRID_KEY). ":""}`
-    + `${errors?("Не удалось опросить: "+errors+" (возможно, лимит TronGrid — впиши бесплатный ключ или повтори позже)."):""}</p>`;
-  if(kc.length){ html+=`<div class="more-h">Клиент ушёл к конкуренту</div>`; kc.forEach(e=>html+=edgeHTML(e,idx)); }
-  if(cc.length){ html+=`<div class="more-h">Конкуренты между собой</div>`; cc.forEach(e=>html+=edgeHTML(e,idx)); }
-  if(!kc.length && !cc.length){
-    html+=`<p class="note">Пересечений в просмотренной истории нет. Увеличь глубину или добавь адреса.</p>`;
-  }
-  out.innerHTML=html;
-  wireCopy(out);
+    ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">${esc(t("radar_kc_found", kc.length))}</div>`
+    : `<div class="banner demo">${esc(t("radar_kc_none"))}</div>`;
+  html += `<p class="hint">${esc(t("radar_scanned", nComp, days))}${truncatedAny?esc(t("radar_truncnote")):""}${errors?esc(t("radar_errnote", errors)):""}</p>`;
+  if(kc.length){ html+=`<div class="more-h">${esc(t("radar_kc_header"))}</div>`; kc.forEach(e=>html+=edgeHTML(e,idx)); }
+  if(cc.length){ html+=`<div class="more-h">${esc(t("radar_cc_header"))}</div>`; cc.forEach(e=>html+=edgeHTML(e,idx)); }
+  if(!kc.length && !cc.length) html+=`<p class="note">${esc(t("radar_no_cross"))}</p>`;
+  out.innerHTML=html; wireCopy(out);
 }
 
-/* ── навигация по вкладкам ────────────────────────────────── */
+/* ── QR-сканер ────────────────────────────────────────────── */
+let scanTarget=null, scanStream=null, scanRAF=null, scanDetector=null;
+function qrSupported(){ return "BarcodeDetector" in window; }
+function getDetector(){ if(!scanDetector) scanDetector=new BarcodeDetector({formats:["qr_code"]}); return scanDetector; }
+function openScanner(onText){
+  scanTarget=onText;
+  if(!qrSupported()){ $("scanMsg").textContent=t("scan_no_support"); $("scanVideo").style.display="none"; }
+  else { $("scanVideo").style.display=""; $("scanMsg").textContent=t("scan_aiming"); startCamera(); }
+  $("scan").classList.add("open");
+}
+async function startCamera(){
+  if(!qrSupported()) return;
+  try{
+    scanStream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"environment"}});
+    const v=$("scanVideo"); v.srcObject=scanStream; await v.play();
+    const det=getDetector();
+    const tick=async ()=>{
+      if(!scanStream) return;
+      try{ const codes=await det.detect(v); if(codes && codes.length){ handleScan(codes[0].rawValue); return; } }catch(e){}
+      scanRAF=requestAnimationFrame(tick);
+    };
+    scanRAF=requestAnimationFrame(tick);
+  }catch(e){ $("scanMsg").textContent=t("scan_cam_fail"); }
+}
+async function scanImage(file){
+  if(!qrSupported()){ $("scanMsg").textContent=t("scan_no_support"); return; }
+  try{
+    const bmp=await createImageBitmap(file);
+    const codes=await getDetector().detect(bmp);
+    if(codes && codes.length) handleScan(codes[0].rawValue);
+    else $("scanMsg").textContent=t("scan_qr_not_found");
+  }catch(e){ $("scanMsg").textContent=t("scan_img_fail"); }
+}
+function handleScan(text){ const cb=scanTarget; closeScanner(); if(cb) cb(String(text||"").trim()); }
+function closeScanner(){
+  if(scanRAF){ cancelAnimationFrame(scanRAF); scanRAF=null; }
+  if(scanStream){ scanStream.getTracks().forEach(tr=>tr.stop()); scanStream=null; }
+  $("scanVideo").srcObject=null; $("scan").classList.remove("open"); scanTarget=null;
+}
+function extractAddr(x){ const m=(x||"").match(/T[1-9A-HJ-NP-Za-km-z]{33}/); return m?m[0]:""; }
+function extractTx(x){ const m=(x||"").match(TXID_RE); return m?m[0]:""; }
+
+/* ── helpers ──────────────────────────────────────────────── */
+function tgHeaders(){ const h={Accept:"application/json"}; if(TRONGRID_KEY) h["TRON-PRO-API-KEY"]=TRONGRID_KEY; return h; }
+function netMsg(e){ return e && e.message==="bad-address" ? t("bad_addr_read") : t("net_err"); }
+function parseNum(v){
+  const s=String(v||"").trim().replace(/\s/g,"").replace(",",".");
+  if(s==="") return null; const n=parseFloat(s); return Number.isFinite(n)?n:null;
+}
+function setBusy(btnId, text, busy){
+  const b=$(btnId); if(!b) return;
+  b.disabled=busy;
+  if(busy){ b.dataset.label=b.textContent; b.textContent=text; }
+  else if(b.dataset.label!=null){ b.textContent=b.dataset.label; }
+}
+let toastT;
+function copy(text){ navigator.clipboard?.writeText(text).then(()=>flashToast(t("copied"))).catch(()=>{}); }
+function flashToast(msg){
+  const el=$("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove("show"),1400);
+}
 function switchTab(name){
-  document.querySelectorAll(".tab").forEach(t=>
-    t.setAttribute("aria-selected", String(t.dataset.tab===name)));
-  document.querySelectorAll(".pane").forEach(p=>
-    p.classList.toggle("active", p.id==="pane-"+name));
+  document.querySelectorAll(".tab").forEach(tb=>tb.setAttribute("aria-selected", String(tb.dataset.tab===name)));
+  document.querySelectorAll(".pane").forEach(p=>p.classList.toggle("active", p.id==="pane-"+name));
+}
+
+/* ── применение языка к статике ───────────────────────────── */
+function applyI18n(){
+  document.documentElement.lang = LANG;
+  document.title = t("app_title");
+  document.querySelectorAll("[data-i18n]").forEach(el=>{ el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll("[data-ph]").forEach(el=>{ el.placeholder = t(el.dataset.ph); });
+  document.querySelectorAll("[data-aria]").forEach(el=>{ el.setAttribute("aria-label", t(el.dataset.aria)); });
+  $("langBtn").textContent = LANG==="en" ? "RU" : "EN";
+  $("scanMsg").textContent = t("scan_msg_default");
 }
 
 /* ── инициализация ────────────────────────────────────────── */
 (function init(){
-  // адрес из ссылки (#addr= / ?addr=) либо из константы
   const hash = new URLSearchParams(location.hash.slice(1));
   const qs   = new URLSearchParams(location.search);
 
-  // кошельки, присланные партнёром в ссылке (#wallets=…) — импортируем и чистим адрес
-  let importedWallets = false;
-  const incoming = hash.get("wallets");
-  if(incoming){
-    const arr = decodeWallets(incoming);
-    if(arr && arr.length){ saveWallets(arr.slice(0,N_SLOTS)); importedWallets = true; }
-    hash.delete("wallets");
-    const rest = hash.toString();
-    history.replaceState(null, document.title,
-      location.pathname + location.search + (rest ? "#"+rest : ""));
+  // импорт базы/кошельков из ссылки партнёра (#share= или старый #wallets=)
+  let importedBase=false, importedW=false;
+  const shareParam=hash.get("share");
+  if(shareParam){
+    const obj=decodeB64(shareParam);
+    if(obj && typeof obj==="object"){
+      if(Array.isArray(obj.w) && obj.w.length){ saveWallets(obj.w.slice(0,N_SLOTS)); importedW=true; }
+      if(Array.isArray(obj.c)){ saveListLS(COMP_KEY, obj.c); importedBase=true; }
+      if(Array.isArray(obj.k)){ saveListLS(CLIENT_KEY, obj.k); importedBase=true; }
+    }
+    hash.delete("share");
+  }
+  const legacyW=hash.get("wallets");
+  if(legacyW){ const a=decodeB64(legacyW); if(Array.isArray(a)&&a.length){ saveWallets(a.slice(0,N_SLOTS)); importedW=true; } hash.delete("wallets"); }
+  if(shareParam || legacyW){
+    const rest=hash.toString();
+    history.replaceState(null, document.title, location.pathname + location.search + (rest?"#"+rest:""));
   }
 
   const a = hash.get("addr") || qs.get("addr") || DEFAULT_ADDRESS;
   if(a) $("addr").value = a.trim();
 
+  applyI18n();
   renderChips();
-  if(importedWallets) flashToast("Кошельки партнёра загружены");
   renderWalletEditor();
+  renderRadarEditors();
+  renderRadarLists();
+  setCalcDir("u2c");
+  if(importedBase) flashToast(t("imported_base"));
+  else if(importedW) flashToast(t("imported_wallets"));
+
+  // язык
+  $("langBtn").addEventListener("click",()=>{
+    LANG = LANG==="en" ? "ru" : "en";
+    try{ localStorage.setItem(LANG_KEY, LANG); }catch(e){}
+    buildFormatters(); applyI18n();
+    renderChips(); renderWalletEditor(); renderRadarEditors(); renderRadarLists();
+    setCalcDir(calcDir);
+    if(radarReport) renderReport();
+    ["outArrival","outTx","outTaint","outCalc"].forEach(id=>{ if($(id)) $(id).innerHTML=""; });
+  });
 
   // вкладки
-  document.querySelectorAll(".tab").forEach(t=>
-    t.addEventListener("click",()=>switchTab(t.dataset.tab)));
+  document.querySelectorAll(".tab").forEach(tb=>tb.addEventListener("click",()=>switchTab(tb.dataset.tab)));
 
-  // редактор кошельков
+  // кошельки (Приход)
   $("wEditToggle").addEventListener("click",()=>$("walletEdit").classList.toggle("open"));
 
-  // кнопки проверок
+  // проверки
   $("goArrival").addEventListener("click", checkArrival);
   $("goTx").addEventListener("click", checkTx);
   $("goTaint").addEventListener("click", checkTaint);
   $("goCalc").addEventListener("click", calc);
 
-  // радар: списки конкурентов/клиентов и сканирование
-  renderRadarEditors();
-  renderRadarLists();                                // редактор по умолчанию свёрнут
+  // радар
   $("radarEditToggle").addEventListener("click",()=>$("radarEdit").classList.toggle("open"));
   $("radarFilter").addEventListener("input", renderRadarLists);
-  $("mySave").addEventListener("click",()=>{
-    const arr=parseListText($("myText").value); saveWallets(arr);
-    renderRadarEditors(); renderRadarLists(); renderChips();   // синхрон с вкладкой «Приход»
-    flashToast("Мои кошельки сохранены: "+arr.length);
-  });
-  $("compSave").addEventListener("click",()=>{
-    const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
-    renderRadarEditors(); renderRadarLists(); flashToast("Конкуренты сохранены: "+arr.length);
-  });
-  $("clientSave").addEventListener("click",()=>{
-    const arr=parseListText($("clientText").value); saveListLS(CLIENT_KEY,arr);
-    renderRadarEditors(); renderRadarLists(); flashToast("Клиенты сохранены: "+arr.length);
-  });
+  $("radarShare").addEventListener("click", shareBase);
+  $("mySave").addEventListener("click",()=>{ const arr=parseListText($("myText").value); saveWallets(arr);
+    renderRadarEditors(); renderRadarLists(); renderChips(); flashToast(t("saved", arr.length)); });
+  $("compSave").addEventListener("click",()=>{ const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
+    renderRadarEditors(); renderRadarLists(); flashToast(t("saved", arr.length)); });
+  $("clientSave").addEventListener("click",()=>{ const arr=parseListText($("clientText").value); saveListLS(CLIENT_KEY,arr);
+    renderRadarEditors(); renderRadarLists(); flashToast(t("saved", arr.length)); });
   $("goRadar").addEventListener("click", scanRadar);
-  document.querySelectorAll("#radarPresets button").forEach(b=>
-    b.addEventListener("click",()=>{
-      $("radarDays").value=b.dataset.d;
-      document.querySelectorAll("#radarPresets button").forEach(x=>
-        x.setAttribute("aria-pressed", String(x===b)));
-    }));
-  $("radarDays").addEventListener("input",()=>
-    document.querySelectorAll("#radarPresets button").forEach(x=>
-      x.setAttribute("aria-pressed", String(x.dataset.d===$("radarDays").value))));
+  document.querySelectorAll("#radarPresets button").forEach(b=>b.addEventListener("click",()=>{
+    $("radarDays").value=b.dataset.d;
+    document.querySelectorAll("#radarPresets button").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+  }));
+  $("radarDays").addEventListener("input",()=>document.querySelectorAll("#radarPresets button").forEach(x=>
+    x.setAttribute("aria-pressed", String(x.dataset.d===$("radarDays").value))));
 
-  // Enter в полях
+  // Enter
   ["addr","expect","limit"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkArrival();}));
   ["txid","txExpect"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkTx();}));
   $("taintAddr").addEventListener("keydown",e=>{if(e.key==="Enter")checkTaint();});
   ["calcAmt","calcRate","calcPct"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")calc();}));
 
-  // калькулятор: направление + подстановка
-  document.querySelectorAll("#calcDir button").forEach(b=>
-    b.addEventListener("click",()=>setCalcDir(b.dataset.dir)));
+  // калькулятор
+  document.querySelectorAll("#calcDir button").forEach(b=>b.addEventListener("click",()=>setCalcDir(b.dataset.dir)));
   $("calcPrefill").addEventListener("click",()=>{ if(lastAmount!=null) $("calcAmt").value = lastAmount; });
 
-  // QR-кнопки
-  $("qrAddr").addEventListener("click",()=>openScanner(t=>{const a=extractAddr(t); if(a) $("addr").value=a; else flashToast("В QR нет адреса TRON");}));
-  $("qrTaint").addEventListener("click",()=>openScanner(t=>{const a=extractAddr(t); if(a) $("taintAddr").value=a; else flashToast("В QR нет адреса TRON");}));
-  $("qrTx").addEventListener("click",()=>openScanner(t=>{const x=extractTx(t); if(x) $("txid").value=x; else flashToast("В QR нет хэша транзакции");}));
+  // QR
+  $("qrAddr").addEventListener("click",()=>openScanner(x=>{const v=extractAddr(x); if(v) $("addr").value=v; else flashToast(t("qr_no_addr"));}));
+  $("qrTaint").addEventListener("click",()=>openScanner(x=>{const v=extractAddr(x); if(v) $("taintAddr").value=v; else flashToast(t("qr_no_addr"));}));
+  $("qrTx").addEventListener("click",()=>openScanner(x=>{const v=extractTx(x); if(v) $("txid").value=v; else flashToast(t("qr_no_hash"));}));
   $("scanClose").addEventListener("click", closeScanner);
   $("scanPick").addEventListener("click",()=>$("scanFile").click());
   $("scanFile").addEventListener("change",e=>{ const f=e.target.files[0]; if(f) scanImage(f); e.target.value=""; });
 
-  // авто-запуск демо, если открыто с #demo=fake / #demo=ok
   if(hash.get("demo")) checkArrival();
 })();
 </script>
