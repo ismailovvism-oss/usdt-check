@@ -182,6 +182,22 @@
   .prefill{font-family:var(--ui);font-size:12px;font-weight:600;color:var(--green);
     background:none;border:none;cursor:pointer;padding:0;margin:6px 2px 0}
 
+  /* radar */
+  textarea{width:100%;font-family:var(--mono);font-size:13px;color:var(--ink);
+    background:#F7FAF8;border:1.5px solid var(--line);border-radius:11px;
+    padding:12px;outline:none;min-height:110px;resize:vertical;line-height:1.5}
+  textarea:focus{border-color:var(--green)}
+  .edge{background:var(--card);border:1px solid var(--line);border-radius:13px;
+    padding:13px 14px;margin-bottom:9px}
+  .edge.bad{background:var(--red-soft);border-color:#F1C7C0}
+  .edge-h{font-size:14px;margin-bottom:5px;line-height:1.35}
+  .edge-s{font-family:var(--mono);font-size:12.5px;color:var(--ink);font-weight:600}
+  .edge-d{font-family:var(--mono);font-size:11.5px;color:var(--muted);margin-top:3px}
+  .edge-a{display:flex;flex-wrap:wrap;gap:6px 10px;align-items:center;margin-top:8px;
+    font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .edge-a .copy{font-family:var(--ui);font-size:11px;font-weight:600;color:var(--green);
+    background:none;border:none;cursor:pointer;padding:0}
+
   footer{font-size:12px;color:var(--muted);line-height:1.5;margin-top:24px;
     padding:14px 6px 0;border-top:1px solid var(--line)}
   .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(20px);
@@ -218,6 +234,7 @@
     <button class="tab" role="tab" data-tab="tx" aria-selected="false">Операция</button>
     <button class="tab" role="tab" data-tab="taint" aria-selected="false">Грязность</button>
     <button class="tab" role="tab" data-tab="calc" aria-selected="false">Калькулятор</button>
+    <button class="tab" role="tab" data-tab="radar" aria-selected="false">Радар</button>
   </nav>
 
   <!-- ── Приход ─────────────────────────────────────────── -->
@@ -333,6 +350,34 @@
     </div>
   </section>
 
+  <!-- ── Радар (связи конкурентов и клиентов) ───────────── -->
+  <section class="pane" id="pane-radar">
+    <div class="panel">
+      <div class="field">
+        <label>Конкуренты — по одному в строке: «Имя, Tадрес»</label>
+        <textarea id="compText" placeholder="Обменник №1, T...
+T..."></textarea>
+        <button class="go" id="compSave" style="margin-top:8px">Сохранить конкурентов (<b id="compCount">0</b>)</button>
+      </div>
+      <div class="field" style="margin-top:14px">
+        <label>Клиенты — «Имя, Tадрес» (можно вставлять списком)</label>
+        <textarea id="clientText" placeholder="Иван, T...
+Пётр, T..."></textarea>
+        <button class="go" id="clientSave" style="margin-top:8px">Сохранить клиентов (<b id="clientCount">0</b>)</button>
+      </div>
+      <div class="field" style="margin-top:14px;max-width:230px">
+        <label for="radarLimit">Сколько переводов смотреть у каждого конкурента</label>
+        <input id="radarLimit" inputmode="numeric" value="100">
+      </div>
+      <button class="go" id="goRadar">Проверить связи</button>
+      <p class="hint">Сканирую только кошельки конкурентов (их мало) и ищу среди их
+        контрагентов твоих клиентов и других конкурентов — база клиентов может расти
+        сколько угодно. Только переводы настоящего USDT. В отчёте вместо адресов —
+        имена из твоей базы.</p>
+    </div>
+    <div id="outRadar"></div>
+  </section>
+
   <footer>
     «Подлинно» = это настоящий USDT (контракт Tether) и он пришёл на твой адрес.
     Это не проверка на заморозку или «грязные» монеты и не гарантия необратимости —
@@ -375,6 +420,8 @@ const PRESET_WALLETS = [];
 const USDT_LOOKALIKE = ["USDT","USDТ","USDT.","USDT ","ＵＳＤＴ"]; // вкл. юникод-двойников
 const DEMO_RECIPIENT = "TJZ7d9kQm4Xy2bVcHnP8sRfWqLtUeAoG5x"; // фиктивный адрес для демо-режима
 const WALLET_KEY     = "usdt-check.wallets";
+const COMP_KEY       = "usdt-check.competitors";
+const CLIENT_KEY     = "usdt-check.clients";
 const N_SLOTS        = 5;
 
 const $ = (id) => document.getElementById(id);
@@ -915,6 +962,143 @@ function flashToast(msg){
   clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1400);
 }
 
+/* ── вкладка «Радар» (связи конкурентов и клиентов) ───────── */
+const sleep = (ms)=>new Promise(r=>setTimeout(r,ms));
+
+function loadListLS(key){
+  try{ const r=localStorage.getItem(key); if(r){ const a=JSON.parse(r); if(Array.isArray(a)) return a; } }catch(e){}
+  return [];
+}
+function saveListLS(key,arr){ try{ localStorage.setItem(key, JSON.stringify(arr)); }catch(e){} }
+
+/* текст «Имя, Tадрес» (по строке) → массив {name,addr}; дедуп по адресу */
+function parseListText(text){
+  const out=[], seen=new Set();
+  String(text||"").split(/\r?\n/).forEach(line=>{
+    line=line.trim(); if(!line) return;
+    const m=line.match(/T[1-9A-HJ-NP-Za-km-z]{33}/);
+    if(!m) return;
+    const addr=m[0];
+    if(seen.has(addr)) return; seen.add(addr);
+    const name=(line.slice(0,m.index)+" "+line.slice(m.index+addr.length))
+      .replace(/[,;|\t]+/g," ").replace(/\s+/g," ").trim();
+    out.push({name,addr});
+  });
+  return out;
+}
+function listToText(arr){
+  return (arr||[]).map(w=>(w.name?w.name+", ":"")+w.addr).join("\n");
+}
+
+/* индекс адрес → {name, group}; приоритет: конкурент > клиент > мой кошелёк */
+function buildNameIndex(){
+  const idx=new Map();
+  loadListLS(COMP_KEY).forEach(w=>{ const a=(w.addr||"").trim();
+    if(ADDR_RE.test(a)) idx.set(a,{name:w.name||short(a,6,5),group:"comp"}); });
+  loadListLS(CLIENT_KEY).forEach(w=>{ const a=(w.addr||"").trim();
+    if(ADDR_RE.test(a) && !idx.has(a)) idx.set(a,{name:w.name||short(a,6,5),group:"client"}); });
+  loadWallets().forEach(w=>{ const a=(w.addr||"").trim();
+    if(ADDR_RE.test(a) && !idx.has(a)) idx.set(a,{name:w.name||short(a,6,5),group:"me"}); });
+  return idx;
+}
+function groupWord(g){ return g==="client"?"Клиент":g==="comp"?"Конкурент":g==="me"?"Я":"?"; }
+function grpTag(g){
+  const c=g==="client"?"var(--red)":g==="comp"?"var(--amber)":"var(--muted)";
+  return `<span style="font-size:11px;font-weight:700;color:${c}">${groupWord(g)}</span>`;
+}
+
+function renderRadarEditors(){
+  $("compText").value   = listToText(loadListLS(COMP_KEY));
+  $("clientText").value = listToText(loadListLS(CLIENT_KEY));
+  $("compCount").textContent   = loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
+  $("clientCount").textContent = loadListLS(CLIENT_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim())).length;
+}
+
+async function scanRadar(){
+  const out=$("outRadar");
+  const comps=loadListLS(COMP_KEY).filter(w=>ADDR_RE.test((w.addr||"").trim()))
+    .map(w=>({name:w.name,addr:w.addr.trim()}));
+  if(!comps.length){
+    out.innerHTML=`<p class="note err">Добавь хотя бы одного конкурента и сохрани список.</p>`; return;
+  }
+  const idx=buildNameIndex();
+  let limit=parseInt($("radarLimit").value,10); if(!(limit>0)) limit=100; if(limit>200) limit=200;
+
+  setBusy("goRadar","Сканирую…",true);
+  const edges=new Map(); let errors=0;
+  for(let i=0;i<comps.length;i++){
+    const comp=comps[i];
+    out.innerHTML=`<p class="note">Сканирую конкурентов: ${i+1} / ${comps.length}…</p>`;
+    try{
+      const url=`https://api.trongrid.io/v1/accounts/${comp.addr}/transactions/trc20?limit=${limit}`;
+      const res=await fetch(url,{headers:tgHeaders()});
+      if(!res.ok) throw new Error("HTTP "+res.status);
+      const data=await res.json();
+      (data.data||[]).forEach(t=>{
+        const info=t.token_info||{};
+        if(info.address!==REAL_USDT) return;            // только настоящий USDT
+        const from=t.from||"", to=t.to||"";
+        const cp = (from===comp.addr) ? to : from;       // контрагент
+        if(!cp || cp===comp.addr) return;
+        const m=idx.get(cp); if(!m) return;              // контрагент не в базе — пропуск
+        let type;
+        if(m.group==="client") type="kc";               // клиент ↔ конкурент
+        else if(m.group==="comp") type="cc";            // конкурент ↔ конкурент
+        else return;                                     // мой кошелёк — не интересует
+        const amt=toAmount(t.value,info.decimals)||0;
+        const ts=Number(t.block_timestamp)||0;
+        const txid=t.transaction_id||"";
+        let a,b;
+        if(type==="cc"){ const p=[comp.addr,cp].sort(); a=p[0]; b=p[1]; }
+        else { a=cp; b=comp.addr; }                      // a=клиент, b=конкурент
+        const key=type+"|"+a+"|"+b;
+        let e=edges.get(key);
+        if(!e){ e={type,a,b,txids:new Set(),total:0,last:0,fwd:0,bwd:0}; edges.set(key,e); }
+        if(txid && e.txids.has(txid)) return;            // одна транзакция видна из обоих сканов
+        if(txid) e.txids.add(txid);
+        e.total+=amt; if(ts>e.last) e.last=ts;
+        if(from===a) e.fwd++; else e.bwd++;
+      });
+    }catch(err){ errors++; }
+    if(i<comps.length-1) await sleep(160);               // бережём лимит TronGrid
+  }
+  renderRadar(out, Array.from(edges.values()), idx, comps.length, errors);
+  setBusy("goRadar","Проверить связи",false);
+}
+
+function edgeHTML(e, idx){
+  const A=idx.get(e.a)||{name:short(e.a,6,5),group:"?"};
+  const B=idx.get(e.b)||{name:short(e.b,6,5),group:"?"};
+  const cnt=e.fwd+e.bwd;
+  const total=nf.format(e.total);
+  const last=e.last? (fmtTime(e.last).split(",")[0]||"?") : "?";
+  return `<div class="edge ${e.type==="kc"?"bad":""}">
+    <div class="edge-h">${grpTag(A.group)} <b>${esc(A.name)}</b> ↔ ${grpTag(B.group)} <b>${esc(B.name)}</b></div>
+    <div class="edge-s">${cnt} переводов · ${total} USDT · последний ${esc(last)}</div>
+    <div class="edge-d">${esc(A.name)} → ${esc(B.name)}: ${e.fwd} &nbsp;·&nbsp; ${esc(B.name)} → ${esc(A.name)}: ${e.bwd}</div>
+    <div class="edge-a">
+      <span>${esc(short(e.a,8,6))}</span><button class="copy" data-c="${esc(e.a)}">копир.</button>
+      <span>${esc(short(e.b,8,6))}</span><button class="copy" data-c="${esc(e.b)}">копир.</button>
+    </div>
+  </div>`;
+}
+
+function renderRadar(out, edges, idx, nComp, errors){
+  const kc=edges.filter(e=>e.type==="kc").sort((x,y)=>y.last-x.last);
+  const cc=edges.filter(e=>e.type==="cc").sort((x,y)=>y.last-x.last);
+  let html = kc.length
+    ? `<div class="banner" style="background:var(--red-soft);border:1px solid #F1C7C0;color:var(--red)">⚠️ Связей «клиент ↔ конкурент»: ${kc.length}. Похоже, кто-то работает в обход.</div>`
+    : `<div class="banner demo">Связей «клиент ↔ конкурент» не найдено.</div>`;
+  html += `<p class="hint">Просканировано конкурентов: ${nComp}. ${errors?("Не удалось опросить: "+errors+" (возможно, лимит TronGrid — впиши бесплатный ключ или повтори позже)."):""}</p>`;
+  if(kc.length){ html+=`<div class="more-h">Клиент ушёл к конкуренту</div>`; kc.forEach(e=>html+=edgeHTML(e,idx)); }
+  if(cc.length){ html+=`<div class="more-h">Конкуренты между собой</div>`; cc.forEach(e=>html+=edgeHTML(e,idx)); }
+  if(!kc.length && !cc.length){
+    html+=`<p class="note">Пересечений в просмотренной истории нет. Увеличь глубину или добавь адреса.</p>`;
+  }
+  out.innerHTML=html;
+  wireCopy(out);
+}
+
 /* ── навигация по вкладкам ────────────────────────────────── */
 function switchTab(name){
   document.querySelectorAll(".tab").forEach(t=>
@@ -960,6 +1144,18 @@ function switchTab(name){
   $("goTx").addEventListener("click", checkTx);
   $("goTaint").addEventListener("click", checkTaint);
   $("goCalc").addEventListener("click", calc);
+
+  // радар: списки конкурентов/клиентов и сканирование
+  renderRadarEditors();
+  $("compSave").addEventListener("click",()=>{
+    const arr=parseListText($("compText").value); saveListLS(COMP_KEY,arr);
+    renderRadarEditors(); flashToast("Конкуренты сохранены: "+arr.length);
+  });
+  $("clientSave").addEventListener("click",()=>{
+    const arr=parseListText($("clientText").value); saveListLS(CLIENT_KEY,arr);
+    renderRadarEditors(); flashToast("Клиенты сохранены: "+arr.length);
+  });
+  $("goRadar").addEventListener("click", scanRadar);
 
   // Enter в полях
   ["addr","expect","limit"].forEach(id=>$(id).addEventListener("keydown",e=>{if(e.key==="Enter")checkArrival();}));
