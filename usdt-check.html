@@ -363,6 +363,13 @@
 const REAL_USDT       = "TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t";
 const DEFAULT_ADDRESS = "";          // ← твой адрес сюда (необязательно)
 const TRONGRID_KEY    = "";          // ← необязательно
+
+/* «Вшитые» кошельки. Заполни, если хочешь послать партнёру готовую копию файла —
+   он увидит их сразу, без ручного ввода. Пример:
+     const PRESET_WALLETS = [{name:"Основной", addr:"T..."},{name:"Резерв", addr:"T..."}];
+   ВНИМАНИЕ: если файл с адресами лежит на публичном GitHub Pages — адреса видны всем.
+   Альтернатива без правки кода — кнопка «🔗 Ссылка для партнёра» в блоке кошельков. */
+const PRESET_WALLETS = [];
 /* ───────────────────────────────────────────────────────────── */
 
 const USDT_LOOKALIKE = ["USDT","USDТ","USDT.","USDT ","ＵＳＤＴ"]; // вкл. юникод-двойников
@@ -419,12 +426,31 @@ function addrToAbiParam(addr){
 function loadWallets(){
   try{
     const raw = localStorage.getItem(WALLET_KEY);
-    const arr = raw ? JSON.parse(raw) : [];
-    return Array.isArray(arr) ? arr.slice(0,N_SLOTS) : [];
-  }catch(e){ return []; }
+    if(raw){ const arr = JSON.parse(raw); if(Array.isArray(arr)) return arr.slice(0,N_SLOTS); }
+  }catch(e){}
+  return PRESET_WALLETS.slice(0,N_SLOTS);   // запасной вариант — вшитые в файл кошельки
 }
 function saveWallets(arr){
   try{ localStorage.setItem(WALLET_KEY, JSON.stringify(arr)); }catch(e){}
+}
+/* упаковка кошельков в ссылку для партнёра и обратно */
+function encodeWallets(arr){
+  try{ return btoa(unescape(encodeURIComponent(JSON.stringify(arr)))); }catch(e){ return ""; }
+}
+function decodeWallets(s){
+  try{ const a = JSON.parse(decodeURIComponent(escape(atob(s)))); return Array.isArray(a)?a:null; }
+  catch(e){ return null; }
+}
+function shareWalletsLink(){
+  const wallets = loadWallets().filter(w=>w && ADDR_RE.test((w.addr||"").trim()));
+  if(!wallets.length){ flashToast("Сначала добавь хотя бы один кошелёк"); return; }
+  const base = (location.protocol==="file:" || location.origin==="null")
+    ? location.href.split("#")[0]
+    : location.origin + location.pathname;
+  const link = base + "#wallets=" + encodeWallets(wallets);
+  navigator.clipboard?.writeText(link)
+    .then(()=>flashToast("Ссылка для партнёра скопирована"))
+    .catch(()=>flashToast("Не удалось скопировать"));
 }
 function renderChips(){
   const wallets = loadWallets().filter(w=>w && ADDR_RE.test((w.addr||"").trim()));
@@ -458,7 +484,11 @@ function renderWalletEditor(){
     </div>`;
   }
   html += `<button class="go" id="walletSave" style="margin-top:6px">Сохранить кошельки</button>`;
+  html += `<button class="go" id="walletShare" style="margin-top:8px;background:var(--green)">🔗 Ссылка для партнёра</button>`;
+  html += `<p class="hint">«Ссылка для партнёра» упакует кошельки в ссылку — открыв её,
+    партнёр получит их на своём устройстве без ручного ввода.</p>`;
   box.innerHTML = html;
+  $("walletShare").addEventListener("click", shareWalletsLink);
   $("walletSave").addEventListener("click",()=>{
     const next = [];
     for(let i=0;i<N_SLOTS;i++){
@@ -898,10 +928,24 @@ function switchTab(name){
   // адрес из ссылки (#addr= / ?addr=) либо из константы
   const hash = new URLSearchParams(location.hash.slice(1));
   const qs   = new URLSearchParams(location.search);
+
+  // кошельки, присланные партнёром в ссылке (#wallets=…) — импортируем и чистим адрес
+  let importedWallets = false;
+  const incoming = hash.get("wallets");
+  if(incoming){
+    const arr = decodeWallets(incoming);
+    if(arr && arr.length){ saveWallets(arr.slice(0,N_SLOTS)); importedWallets = true; }
+    hash.delete("wallets");
+    const rest = hash.toString();
+    history.replaceState(null, document.title,
+      location.pathname + location.search + (rest ? "#"+rest : ""));
+  }
+
   const a = hash.get("addr") || qs.get("addr") || DEFAULT_ADDRESS;
   if(a) $("addr").value = a.trim();
 
   renderChips();
+  if(importedWallets) flashToast("Кошельки партнёра загружены");
   renderWalletEditor();
 
   // вкладки
